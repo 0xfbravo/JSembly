@@ -9,7 +9,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.List;
 import java.awt.Point;
 import java.awt.Toolkit;
 
@@ -32,6 +31,7 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyledDocument;
 
@@ -54,15 +54,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("serial")
 public class Janela extends JFrame{
-	ArrayList<HashMap<String, String>> memoria = new ArrayList<HashMap<String, String>>();
+	ArrayList<Color> cores = new ArrayList<Color>();
 	Configuracoes conf = new Configuracoes();
 	Timer alphaChanger;
 	private String titulo;
@@ -104,6 +101,12 @@ public class Janela extends JFrame{
 	}
 	
 	public Janela(String titulo,int largura,int altura){
+		cores.add(new Color(169,115,124)); // Cor Instrução 1
+		cores.add(new Color(115,139,169)); // Cor Instrução 2
+		cores.add(new Color(115,169,115)); // Cor Instrução 3
+		cores.add(new Color(169,115,150)); // Cor Instrução 4
+		cores.add(new Color(115,169,154)); // Cor Instrução 5
+		cores.add(new Color(169,115,124)); // Cor Instrução 6
 		try{
 		File temp = File.createTempFile("temp-file-name", ".tmp");
 		System.out.println("Arquivo Temporário : " + temp.getAbsolutePath());
@@ -183,8 +186,29 @@ public class Janela extends JFrame{
 		painelBaixo.setLayout(layoutBaixo);
 		painelJanela.add(painelBaixo);
 
-		// -- Tabela de Registradores
-		JTable listaMem = new JTable();
+		// -- Tabela da Memória
+		JTable listaMem = new JTable(){
+			public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+			{
+				Component c = super.prepareRenderer(renderer, row, column);
+
+				//  Color row based on a cell value
+
+				if (!isRowSelected(row))
+				{
+					c.setBackground(getBackground());
+					int modelRow = convertRowIndexToModel(row);
+					int instrucao = 4;
+					String type = (String)getModel().getValueAt(modelRow, 1);
+					if ((!"00000000".equals(type)) && modelRow < instrucao){ c.setBackground(new Color(169,115,124)); c.setForeground(Color.WHITE);}
+					for(int i = 1; i < 100; i++){
+						if ((!"00000000".equals(type)) && (modelRow >= instrucao*i && modelRow < instrucao*(i+1))){ c.setBackground(cores.get(i)); c.setForeground(Color.WHITE); }
+					}
+				}
+
+				return c;
+			}
+		};
 		listaMem.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             public Component getTableCellRendererComponent(JTable table,
                     Object value,
@@ -211,26 +235,7 @@ public class Janela extends JFrame{
 		listaMem.getColumnModel().getColumn(0).setHeaderValue("Endereços");
 		listaMem.getColumnModel().getColumn(1).setHeaderValue("Dados");
 		
-		HashMap<String, String> n = new HashMap<String, String>();
-		for(int i = 0; i < 9; i +=4){
-			if(i<10){ n.put("00000"+i, "000000");/* System.out.println(memoria.get("00000"+i).toString()+" para o i: "+i);*/}
-			else if(100 > i && i >= 10){ n.put("0000"+i, "000000");/* System.out.println(memoria.get("0000"+i).toString()+" para o i: "+i);*/}
-			else if(1000 > i && i >= 100){ n.put("000"+i, "000000");/* System.out.println(memoria.get("000"+i).toString()+" para o i: "+i);*/}
-			else if(10000 > i && i >= 1000){ n.put("00"+i, "000000");/* System.out.println(memoria.get("00"+i).toString()+" para o i: "+i);*/}
-			else if(100000 > i && i >= 10000){ n.put("0"+i, "000000");/* System.out.println(memoria.get("0"+i).toString()+" para o i: "+i);*/ }
-			else { n.put(""+i, "000000");/* System.out.println(memoria.get(""+i).toString()+" para o i: "+i);*/}
-			memoria.add(n);
-		}
-		
-		for(int i =0; i < memoria.size(); i ++){
-			System.out.println(memoria.get(i));
-			if(i<10){ dtmMem.addRow(new Object[]{"00000"+i, memoria.get(i)}); }
-			else if(100 > i && i >= 10){ dtmMem.addRow(new Object[]{"0000"+i, memoria.get(i)}); }
-			else if(1000 > i && i >= 100){ dtmMem.addRow(new Object[]{"000"+i, memoria.get(i)}); }
-			else if(10000 > i && i >= 1000){ dtmMem.addRow(new Object[]{"00"+i, memoria.get(i)}); }
-			else if(100000 > i && i >= 10000){ dtmMem.addRow(new Object[]{"0"+i, memoria.get(i)}); }
-			else { dtmMem.addRow(new Object[]{i, memoria.get(i)}); }
-		}
+		Memoria memoria = new Memoria(10000000,dtmMem);
 		
 		JScrollPane spMem = new JScrollPane(listaMem);
 		tblMemoria.add(spMem,conf.getMemoria());
@@ -413,6 +418,8 @@ public class Janela extends JFrame{
 				case 3:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
+							dtmExec.setRowCount(0);
+							memoria.LimparMemoria(dtmMem);
 							painelLinguagemMaquina.setText("");
 							painelCima.setSelectedComponent(linguagemMaquina);
 							ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp.getAbsolutePath());
@@ -461,10 +468,13 @@ public class Janela extends JFrame{
 							    		  		break;
 							    		  	case 2:
 							    		  		//System.out.println("Tipo R");
-							    		  		painelLinguagemMaquina.append(TipoInstrucao.InstrucaoTipoR(ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),ArraysLists.regEncontrados.get(2).getValorBits(),"00000",ArraysLists.operadores.get(i).getValorBits())+"\n");
+							    		  		String lm = TipoInstrucao.InstrucaoTipoR(ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),ArraysLists.regEncontrados.get(2).getValorBits(),"00000",ArraysLists.operadores.get(i).getValorBits());
+							    		  		memoria.AlocarMemoria(lm, dtmMem);
+							    		  		//memoria.AtualizarMemoria(memoria.BuscarMemoria(dtmMem),lm,dtmMem);
+							    		  		painelLinguagemMaquina.append(lm+"\n");
 							    		  		dtmExec.addRow(new Object[]{
-							    		  				"[Implementar]",
-							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(TipoInstrucao.InstrucaoTipoR(ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),ArraysLists.regEncontrados.get(2).getValorBits(),"00000",ArraysLists.operadores.get(i).getValorBits())),
+							    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
+							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
 							    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+",$"+ArraysLists.regEncontrados.get(2).getId(),
 							    		  				i+1+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+ArraysLists.regEncontrados.get(2).toString()});
 							    		  		break;
