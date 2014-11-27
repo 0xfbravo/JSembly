@@ -9,12 +9,12 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.List;
 import java.awt.Point;
 import java.awt.Toolkit;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
@@ -38,7 +38,6 @@ import javax.swing.text.StyledDocument;
 import com.jsembly.extras.TextLineNumber;
 import com.jsembly.extras.Utilidades;
 import com.jsembly.funcoes.Configuracoes;
-import com.jsembly.funcoes.Configuracoes.linguagem;
 import com.jsembly.funcoes.ConversaoBase;
 import com.jsembly.funcoes.Cores;
 import com.jsembly.mips.TipoInstrucao;
@@ -55,11 +54,15 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("serial")
 public class Janela extends JFrame{
+	ArrayList<HashMap<String, String>> memoria = new ArrayList<HashMap<String, String>>();
 	Configuracoes conf = new Configuracoes();
 	Timer alphaChanger;
 	private String titulo;
@@ -80,7 +83,7 @@ public class Janela extends JFrame{
 			JTable abaExecutar = new JTable();
 	JDesktopPane painelBaixo = new JDesktopPane();
 		JTabbedPane valoresMIPS = new JTabbedPane();
-		JTabbedPane memoria = new JTabbedPane();
+		JTabbedPane tblMemoria = new JTabbedPane();
 	
 	JDesktopPane splPainel = new JDesktopPane();
 
@@ -122,7 +125,7 @@ public class Janela extends JFrame{
 		
 		painelJanela.add(painelCima);
 		painelBaixo.add(valoresMIPS,BorderLayout.WEST);
-		painelBaixo.add(memoria,BorderLayout.EAST);
+		painelBaixo.add(tblMemoria,BorderLayout.EAST);
 				linguagemMIPS.addKeyListener(new KeyListener(){
 					@Override
 					public void keyPressed(KeyEvent arg0) {}
@@ -171,11 +174,11 @@ public class Janela extends JFrame{
 		abaExecutar.getColumnModel().getColumn(0).setHeaderValue("Endereço");
 		abaExecutar.getColumnModel().getColumn(1).setHeaderValue("Valor Hexadecimal");
 		abaExecutar.getColumnModel().getColumn(2).setHeaderValue("Basic");
-		abaExecutar.getColumnModel().getColumn(3).setHeaderValue("Códgio");
+		abaExecutar.getColumnModel().getColumn(3).setHeaderValue("Código");
 
 		JScrollPane abaExecutar_Scroll = new JScrollPane(abaExecutar);
 		painelCima.add(abaExecutar_Scroll,conf.getExecutar());
-		painelCima.setIconAt(2, Utilidades.buscarIcone("img/monitor.png"));
+		painelCima.setIconAt(2, Utilidades.buscarIcone("img/dashboard.png"));
 		
 		painelBaixo.setLayout(layoutBaixo);
 		painelJanela.add(painelBaixo);
@@ -207,18 +210,31 @@ public class Janela extends JFrame{
 		listaMem.setEnabled(false);
 		listaMem.getColumnModel().getColumn(0).setHeaderValue("Endereços");
 		listaMem.getColumnModel().getColumn(1).setHeaderValue("Dados");
-
-		for(int i = 0; i < 1000000; i +=4){
-			if(i<10){ dtmMem.addRow(new Object[]{"00000"+i, "0000000"}); }
-			else if(100 > i && i >= 10){ dtmMem.addRow(new Object[]{"0000"+i, "0000000"}); }
-			else if(1000 > i && i >= 100){ dtmMem.addRow(new Object[]{"000"+i, "0000000"}); }
-			else if(10000 > i && i >= 1000){ dtmMem.addRow(new Object[]{"00"+i, "0000000"}); }
-			else if(100000 > i && i >= 10000){ dtmMem.addRow(new Object[]{"0"+i, "0000000"}); }
-			else { dtmMem.addRow(new Object[]{i, "0000000"}); }
+		
+		HashMap<String, String> n = new HashMap<String, String>();
+		for(int i = 0; i < 9; i +=4){
+			if(i<10){ n.put("00000"+i, "000000");/* System.out.println(memoria.get("00000"+i).toString()+" para o i: "+i);*/}
+			else if(100 > i && i >= 10){ n.put("0000"+i, "000000");/* System.out.println(memoria.get("0000"+i).toString()+" para o i: "+i);*/}
+			else if(1000 > i && i >= 100){ n.put("000"+i, "000000");/* System.out.println(memoria.get("000"+i).toString()+" para o i: "+i);*/}
+			else if(10000 > i && i >= 1000){ n.put("00"+i, "000000");/* System.out.println(memoria.get("00"+i).toString()+" para o i: "+i);*/}
+			else if(100000 > i && i >= 10000){ n.put("0"+i, "000000");/* System.out.println(memoria.get("0"+i).toString()+" para o i: "+i);*/ }
+			else { n.put(""+i, "000000");/* System.out.println(memoria.get(""+i).toString()+" para o i: "+i);*/}
+			memoria.add(n);
 		}
+		
+		for(int i =0; i < memoria.size(); i ++){
+			System.out.println(memoria.get(i));
+			if(i<10){ dtmMem.addRow(new Object[]{"00000"+i, memoria.get(i)}); }
+			else if(100 > i && i >= 10){ dtmMem.addRow(new Object[]{"0000"+i, memoria.get(i)}); }
+			else if(1000 > i && i >= 100){ dtmMem.addRow(new Object[]{"000"+i, memoria.get(i)}); }
+			else if(10000 > i && i >= 1000){ dtmMem.addRow(new Object[]{"00"+i, memoria.get(i)}); }
+			else if(100000 > i && i >= 10000){ dtmMem.addRow(new Object[]{"0"+i, memoria.get(i)}); }
+			else { dtmMem.addRow(new Object[]{i, memoria.get(i)}); }
+		}
+		
 		JScrollPane spMem = new JScrollPane(listaMem);
-		memoria.add(spMem,conf.getMemoria());
-		memoria.setIconAt(0, Utilidades.buscarIcone("img/timeline_marker.png"));
+		tblMemoria.add(spMem,conf.getMemoria());
+		tblMemoria.setIconAt(0, Utilidades.buscarIcone("img/timeline_marker.png"));
 		
 		// -- Tabela de Registradores
 		JTable listaReg = new JTable();
@@ -305,10 +321,7 @@ public class Janela extends JFrame{
 		
 		janelaInicial.add(painelMenu, BorderLayout.WEST);
 		painelMenu.setLayout(layoutMenu);
-		// Menu Lateral Cinza
-		//painelMenu.setBackground(new Color(136,138,133));
-		// Menu Lateral Azul
-		painelMenu.setBackground(new Color(33,73,71));
+		painelMenu.setBackground(new Color(29,88,97));
 		for(int i =0; i < ItensMenu.values().length; i++){
 			SoftJButton itensMenu = new SoftJButton();
 			itensMenu.setIcon(Utilidades.buscarIcone(ArraysLists.itensMenuLista.get(i).getCaminhoImg()));
@@ -318,7 +331,8 @@ public class Janela extends JFrame{
 			itensMenu.setBorderPainted(false);
 			itensMenu.setFocusPainted(false);
 			itensMenu.setContentAreaFilled(false);
-			itensMenu.setOpaque(false);
+			itensMenu.setOpaque(true);
+			itensMenu.setBackground(new Color(29,88,97));
 
 			itensMenu.addMouseListener(new MouseListener(){
 
@@ -330,8 +344,7 @@ public class Janela extends JFrame{
 
 				@Override
 				public void mouseEntered(MouseEvent arg0) {
-					//System.out.println("Mouse aqui!");
-					//painelMenu.setBackground(Color.WHITE);
+					itensMenu.setBackground(new Color(131,186,194));
 					alphaChanger = new Timer(15, new ActionListener() {
 
 			            private float incrementer = -.03f;
@@ -355,6 +368,7 @@ public class Janela extends JFrame{
 
 				@Override
 				public void mouseExited(MouseEvent arg0) {
+					itensMenu.setBackground(new Color(29,88,97));
 					alphaChanger.stop();
 					itensMenu.setAlpha(1);
 					repaint();
@@ -505,9 +519,10 @@ public class Janela extends JFrame{
 									conf.linguagemPrograma(linguagem.getSelectedIndex());
 									valoresMIPS.setTitleAt(0, conf.getRegistradores());
 									valoresMIPS.setTitleAt(1, conf.getOperadores());
-									memoria.setTitleAt(0, conf.getMemoria());
+									tblMemoria.setTitleAt(0, conf.getMemoria());
 									painelCima.setTitleAt(0, conf.getLinguagemMIPS());
 									painelCima.setTitleAt(1, conf.getLinguagemMaquina());
+									painelCima.setTitleAt(2, conf.getExecutar());
 									repaint();
 								}
 								
@@ -551,7 +566,7 @@ public class Janela extends JFrame{
 		lblNewLabel.setForeground(SystemColor.controlDkShadow);
 		splPainel.add(lblNewLabel);
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblNewLabel.setBounds(416, 363, 85, 25);
+		lblNewLabel.setBounds(486, 363, 85, 25);
 		
 		JLabel lblImgLoad = new JLabel("");
 		lblImgLoad.setHorizontalAlignment(SwingConstants.CENTER);
