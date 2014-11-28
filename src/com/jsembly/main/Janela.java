@@ -256,19 +256,21 @@ public class Janela extends JFrame{
 				{
 					c.setBackground(getBackground());
 					int modelRow = convertRowIndexToModel(row);
-					boolean type = (boolean)getModel().getValueAt(modelRow, 3);
-					if(type){
-						c.setBackground(new Color(52,52,52));
-						c.setForeground(new Color(155,188,76));
+					String type = (String)getModel().getValueAt(modelRow, 3);
+					if(type.equals("Ativo")){
+						c.setBackground(new Color(226,226,226));
+						c.setForeground(new Color(97,134,26));
 						DefaultTableCellRenderer centro = new DefaultTableCellRenderer();
 						centro.setHorizontalAlignment(SwingConstants.CENTER);
-	            		centro.setFont(getFont().deriveFont(Font.BOLD));
+	            		c.setFont(getFont().deriveFont(Font.BOLD));
+	            		centro.setIcon(Utilidades.buscarIcone("img/connect.png"));
 	            		getColumnModel().getColumn(3).setCellRenderer(centro);
 					} else {
 						c.setBackground(new Color(247,247,247));
 						DefaultTableCellRenderer centro = new DefaultTableCellRenderer();
 						centro.setHorizontalAlignment(SwingConstants.CENTER);
 	            		centro.setForeground(new Color(167,167,167));
+	            		centro.setIcon(Utilidades.buscarIcone("img/disconnect.png"));
 	            		getColumnModel().getColumn(3).setCellRenderer(centro);
 					}
 				}
@@ -304,21 +306,25 @@ public class Janela extends JFrame{
             }                                            
 		});
 		DefaultTableModel dtm = new DefaultTableModel(0, 0);
-		String header[] = new String[] { "Registrador", "Número", "Valor Binário", "Ativo" };
+		String header[] = new String[] { "Registrador", "Número", "Valor Binário", "Atividade" };
 		dtm.setColumnIdentifiers(header);
 		listaReg.setModel(dtm);
 		listaReg.setEnabled(false);
 		listaReg.getColumnModel().getColumn(0).setHeaderValue("Registrador");
 		listaReg.getColumnModel().getColumn(1).setHeaderValue("Número");
 		listaReg.getColumnModel().getColumn(2).setHeaderValue("Valor Binário");
-		listaReg.getColumnModel().getColumn(3).setHeaderValue("Ativo");
+		listaReg.getColumnModel().getColumn(3).setHeaderValue("Atividade");
 
 		for(int i = 0; i < ArraysLists.registradores.size(); i ++){
+			String atividade = "Inativo";
+			if(ArraysLists.registradores.get(i).isAtivo()){
+				atividade = "Ativo";
+			}
 			dtm.addRow(new Object[]{
 					ArraysLists.registradores.get(i).toString(),
 					ArraysLists.registradores.get(i).getId(),
 					ArraysLists.registradores.get(i).getValorBits(),
-					ArraysLists.registradores.get(i).isAtivo()});
+					atividade});
 		}
 		JScrollPane spReg = new JScrollPane(listaReg);
 		valoresMIPS.add(spReg,conf.getRegistradores());

@@ -94,7 +94,7 @@ public enum Registrador {
   				//System.out.println("Registrador:"+ ArraysLists.registradores.get(r).toString());
   	  			if(dtm.getValueAt(d, 0).equals(ArraysLists.registradores.get(r).toString())){
   	  				//System.out.println("É Igual!");
-  	  				dtm.setValueAt(false, d, 3);
+  	  				dtm.setValueAt("Inativo", d, 3);
   	  			}
   			}
   		}
@@ -103,7 +103,7 @@ public enum Registrador {
 	public static void AtualizarAtividade(DefaultTableModel dtm){
   		for(int d = 0; d < dtm.getRowCount(); d++){
   			if(dtm.getValueAt(d, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
-  				dtm.setValueAt(ArraysLists.regEncontrados.get(0).isAtivo(), d, 3);
+  				dtm.setValueAt("Ativo", d, 3);
   			}
   		}
   		dtm.fireTableDataChanged();
