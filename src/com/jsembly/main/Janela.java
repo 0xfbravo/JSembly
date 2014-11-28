@@ -101,12 +101,14 @@ public class Janela extends JFrame{
 	}
 	
 	public Janela(String titulo,int largura,int altura){
-		cores.add(new Color(169,115,124)); // Cor Instrução 1
-		cores.add(new Color(115,139,169)); // Cor Instrução 2
-		cores.add(new Color(115,169,115)); // Cor Instrução 3
-		cores.add(new Color(169,115,150)); // Cor Instrução 4
-		cores.add(new Color(115,169,154)); // Cor Instrução 5
-		cores.add(new Color(169,115,124)); // Cor Instrução 6
+		for(int i = 0; i < 100; i ++){
+			cores.add(new Color(169,i,124)); // Cor Instrução 1
+			cores.add(new Color(i+50,139,i)); // Cor Instrução 2
+			cores.add(new Color(i,169,115)); // Cor Instrução 3
+			cores.add(new Color(i+33,i,i+22)); // Cor Instrução 4
+			cores.add(new Color(115,i,154)); // Cor Instrução 5
+			cores.add(new Color(i+34,115,i)); // Cor Instrução 6
+		}
 		try{
 		File temp = File.createTempFile("temp-file-name", ".tmp");
 		System.out.println("Arquivo Temporário : " + temp.getAbsolutePath());
@@ -235,7 +237,7 @@ public class Janela extends JFrame{
 		listaMem.getColumnModel().getColumn(0).setHeaderValue("Endereços");
 		listaMem.getColumnModel().getColumn(1).setHeaderValue("Dados");
 		
-		Memoria memoria = new Memoria(10000000,dtmMem);
+		Memoria memoria = new Memoria(10240,dtmMem);
 		
 		JScrollPane spMem = new JScrollPane(listaMem);
 		tblMemoria.add(spMem,conf.getMemoria());
