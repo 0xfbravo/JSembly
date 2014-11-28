@@ -40,6 +40,7 @@ import com.jsembly.extras.Utilidades;
 import com.jsembly.funcoes.Configuracoes;
 import com.jsembly.funcoes.ConversaoBase;
 import com.jsembly.funcoes.Cores;
+import com.jsembly.mips.Registrador;
 import com.jsembly.mips.TipoInstrucao;
 
 import java.awt.SystemColor;
@@ -244,7 +245,37 @@ public class Janela extends JFrame{
 		tblMemoria.setIconAt(0, Utilidades.buscarIcone("img/timeline_marker.png"));
 		
 		// -- Tabela de Registradores
-		JTable listaReg = new JTable();
+		JTable listaReg = new JTable(){
+			public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+			{
+				Component c = super.prepareRenderer(renderer, row, column);
+
+				//  Color row based on a cell value
+
+				if (!isRowSelected(row))
+				{
+					c.setBackground(getBackground());
+					int modelRow = convertRowIndexToModel(row);
+					boolean type = (boolean)getModel().getValueAt(modelRow, 3);
+					if(type){
+						c.setBackground(new Color(52,52,52));
+						c.setForeground(new Color(155,188,76));
+						DefaultTableCellRenderer centro = new DefaultTableCellRenderer();
+						centro.setHorizontalAlignment(SwingConstants.CENTER);
+	            		centro.setFont(getFont().deriveFont(Font.BOLD));
+	            		getColumnModel().getColumn(3).setCellRenderer(centro);
+					} else {
+						c.setBackground(new Color(247,247,247));
+						DefaultTableCellRenderer centro = new DefaultTableCellRenderer();
+						centro.setHorizontalAlignment(SwingConstants.CENTER);
+	            		centro.setForeground(new Color(167,167,167));
+	            		getColumnModel().getColumn(3).setCellRenderer(centro);
+					}
+				}
+
+				return c;
+			}
+		};
 		listaReg.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             public Component getTableCellRendererComponent(JTable table,
                     Object value,
@@ -252,35 +283,72 @@ public class Janela extends JFrame{
                     boolean hasFocus,
                     int row,
                     int column) {
-            	super.getTableCellRendererComponent(table, value, isSelected,hasFocus, row, column);
-            	// Prepare default color         
-            	Color color = table.getForeground();
+            	super.getTableCellRendererComponent(table, value, isSelected,hasFocus, row, column);     
             	if (column == 0) {
-            			color = new Color(60,38,150);
-            			//new Color(160,43,4)
+            		setFont( getFont().deriveFont(Font.BOLD) );
+            		setForeground(new Color(55,55,55));
             	}
-            	setForeground(color);
+            	if (column == 1) {
+            		setForeground(new Color(28,89,75));
+            	}
+            	if (column == 2) {
+            		setForeground(new Color(181,30,40));
+            	}
+            	if (column == 3) {
+            		DefaultTableCellRenderer centro = new DefaultTableCellRenderer();
+            		centro.setHorizontalAlignment(SwingConstants.CENTER);
+            		listaReg.getColumnModel().getColumn(3).setCellRenderer(centro);
+            	}
+            	setBackground(Color.WHITE);
             	return this;
             }                                            
 		});
 		DefaultTableModel dtm = new DefaultTableModel(0, 0);
-		String header[] = new String[] { "Registrador", "Número", "Valor Binário" };
+		String header[] = new String[] { "Registrador", "Número", "Valor Binário", "Ativo" };
 		dtm.setColumnIdentifiers(header);
 		listaReg.setModel(dtm);
 		listaReg.setEnabled(false);
 		listaReg.getColumnModel().getColumn(0).setHeaderValue("Registrador");
 		listaReg.getColumnModel().getColumn(1).setHeaderValue("Número");
 		listaReg.getColumnModel().getColumn(2).setHeaderValue("Valor Binário");
+		listaReg.getColumnModel().getColumn(3).setHeaderValue("Ativo");
 
 		for(int i = 0; i < ArraysLists.registradores.size(); i ++){
-			dtm.addRow(new Object[]{ArraysLists.registradores.get(i).toString(), ArraysLists.registradores.get(i).getId(), ArraysLists.registradores.get(i).getValorBits()});
+			dtm.addRow(new Object[]{
+					ArraysLists.registradores.get(i).toString(),
+					ArraysLists.registradores.get(i).getId(),
+					ArraysLists.registradores.get(i).getValorBits(),
+					ArraysLists.registradores.get(i).isAtivo()});
 		}
 		JScrollPane spReg = new JScrollPane(listaReg);
 		valoresMIPS.add(spReg,conf.getRegistradores());
 		valoresMIPS.setIconAt(0, Utilidades.buscarIcone("img/brick.png"));
 		
 		// -- Tabela de Operadores
-		JTable listaOp = new JTable();
+		JTable listaOp = new JTable(){
+			public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+			{
+				Component c = super.prepareRenderer(renderer, row, column);
+
+				if (!isRowSelected(row))
+				{
+					c.setBackground(getBackground());
+					int modelRow = convertRowIndexToModel(row);
+					String type = (String)getModel().getValueAt(modelRow, 1);
+					if("Tipo R".equals(type)||"Tipo R (Jump/Branch)".equals(type)){
+						c.setBackground(new Color(247,247,247));
+					}
+					else if("Tipo I".equals(type)||"Tipo I (Load/Store)".equals(type)||"Tipo I (Jump/Branch)".equals(type)){
+						c.setBackground(new Color(247,247,247));
+					}
+					else if("Tipo J".equals(type)){
+						c.setBackground(new Color(247,247,247));
+					}
+				}
+
+				return c;
+			}
+		};
 		listaOp.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             public Component getTableCellRendererComponent(JTable table,
                     Object value,
@@ -289,12 +357,18 @@ public class Janela extends JFrame{
                     int row,
                     int column) {
             	super.getTableCellRendererComponent(table, value, isSelected,hasFocus, row, column);
-            	// Prepare default color         
-            	Color color = table.getForeground();
             	if (column == 0) {
-            			color = new Color(160,43,4);
+            		setFont( getFont().deriveFont(Font.BOLD) );
+            		setForeground(new Color(55,55,55));
             	}
-            	setForeground(color);
+            	if (column == 1) {
+            		setFont( getFont().deriveFont(Font.BOLD) );
+            		setForeground(new Color(28,89,75));
+            	}
+            	if (column == 2) {
+            		setForeground(new Color(181,30,40));
+            	}
+            	setBackground(Color.WHITE);
             	return this;
             }                                            
 		});
@@ -317,6 +391,15 @@ public class Janela extends JFrame{
 					break;
 				case 2:
 					tipoInstrucao = "Tipo R";
+					break;
+				case 3:
+					tipoInstrucao = "Tipo I (Load/Store)";
+					break;
+				case 4:
+					tipoInstrucao = "Tipo R (Jump/Branch)";
+					break;
+				case 5:
+					tipoInstrucao = "Tipo I (Jump/Branch)";
 					break;
 			}
 			dtm2.addRow(new Object[]{ArraysLists.operadores.get(i).toString(), tipoInstrucao, ArraysLists.operadores.get(i).getValorBits()});
@@ -420,6 +503,7 @@ public class Janela extends JFrame{
 				case 3:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
+							Registrador.LimparAtividade(dtm);
 							dtmExec.setRowCount(0);
 							memoria.LimparMemoria(dtmMem);
 							painelLinguagemMaquina.setText("");
@@ -427,6 +511,7 @@ public class Janela extends JFrame{
 							ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp.getAbsolutePath());
 							// Busca por linhas, no arquivo
 							for(String linha : linhasLidas){
+								ArraysLists.regEncontrados.clear();
 								Pattern operador = Pattern.compile("\\w+", Pattern.CASE_INSENSITIVE);
 								Pattern registrador = Pattern.compile("[$]\\w+", Pattern.CASE_INSENSITIVE);
 								Pattern endereco = Pattern.compile(" \\w+|[0-9]|\\,w+|,[0-9]", Pattern.CASE_INSENSITIVE);
@@ -437,7 +522,6 @@ public class Janela extends JFrame{
 							    if(matcher.find()) {
 								    // Busca de Registradores
 								    Matcher matcher2 = registrador.matcher(linha);
-								    ArraysLists.regEncontrados.removeAll(ArraysLists.regEncontrados);
 								    while(matcher2.find()) {
 								      for(int i = 0; i < ArraysLists.registradores.size(); i++){
 								    	  if(matcher2.group().toLowerCase().equals(ArraysLists.registradores.get(i).toString())){
@@ -470,9 +554,10 @@ public class Janela extends JFrame{
 							    		  		break;
 							    		  	case 2:
 							    		  		//System.out.println("Tipo R");
+							    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
+							    		  		Registrador.AtualizarAtividade(dtm);
 							    		  		String lm = TipoInstrucao.InstrucaoTipoR(ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),ArraysLists.regEncontrados.get(2).getValorBits(),"00000",ArraysLists.operadores.get(i).getValorBits());
 							    		  		memoria.AlocarMemoria(lm, dtmMem);
-							    		  		//memoria.AtualizarMemoria(memoria.BuscarMemoria(dtmMem),lm,dtmMem);
 							    		  		painelLinguagemMaquina.append(lm+"\n");
 							    		  		dtmExec.addRow(new Object[]{
 							    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
