@@ -1,7 +1,5 @@
 package com.jsembly.mips;
 
-import java.util.ArrayList;
-
 import javax.swing.table.DefaultTableModel;
 
 import com.jsembly.main.ArraysLists;
@@ -14,12 +12,11 @@ public enum Registrador {
 	pc(999,"[ Faltam informações ]","[ Faltam informações ]",false,false),
 	hi(999,"[ Faltam informações ]","[ Faltam informações ]",false,false),
 	lo(999,"[ Faltam informações ]","[ Faltam informações ]",false,false),
-	$k0(26,"11010 [ Faltam informações ]","[ Faltam informações ]",false,false),
-	$k1(27,"11011 [ Faltam informações ]","[ Faltam informações ]",false,false),
-	$at(1,"00001 [ Faltam informações ]","[ Faltam informações ]",false,false),
 	
 	// --- Constante Zero (0)
 	$zero(0,"00000","Constante Zero",false,false),
+	// -- Indefinido
+	$at(1,"00001","Assembly Temporary",false,false),
 	// --- Resultados e Avaliações de Expressões
 	$v0(2,"00010","Resultados e Avaliações de Expressões",false,false),$v1(3,"00011","Resultados e Avaliações de Expressões",false,false),
 	// --- Argumentos
@@ -32,6 +29,9 @@ public enum Registrador {
 	$s4(20,"10100","Salvo",true,false),$s5(21,"10101","Salvo",true,false),$s6(22,"10110","Salvo",true,false),$s7(23,"10111","Salvo",true,false),
 	// --- Temporários part 2
 	$t8(24,"11000","Temporário",false,false),$t9(25,"11001","Temporário",false,false),
+	// -- Indefinido
+	$k0(26,"11010","Reservado para Interrupções",false,false),
+	$k1(27,"11011","Reservado para Interrupções",false,false),
 	// --- Ponteiro Global
 	$gp(28,"11100","Ponteiro Global",true,false),
 	// --- Ponteiro para Pilha

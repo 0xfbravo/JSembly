@@ -13,20 +13,20 @@ public class Memoria {
 		 *
 		 
 		for(int i = 0; i < memMax; i +=4){
-			if(i<10){ this.AtualizarMemoria("00000"+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal("00000000"), dtm); }
-			else if(100 > i && i >= 10){ this.AtualizarMemoria("0000"+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal("00000000"), dtm); }
-			else if(1000 > i && i >= 100){ this.AtualizarMemoria("000"+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal("00000000"), dtm); }
-			else if(10000 > i && i >= 1000){ this.AtualizarMemoria("00"+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal("00000000"), dtm);  }
-			else if(100000 > i && i >= 10000){ this.AtualizarMemoria("0"+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal("00000000"), dtm); }
-			else { this.AtualizarMemoria(""+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal("00000000"), dtm);  }
+			if(i<10){ this.AtualizarMemoria("00000"+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal(""), dtm); }
+			else if(100 > i && i >= 10){ this.AtualizarMemoria("0000"+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal(""), dtm); }
+			else if(1000 > i && i >= 100){ this.AtualizarMemoria("000"+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal(""), dtm); }
+			else if(10000 > i && i >= 1000){ this.AtualizarMemoria("00"+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal(""), dtm);  }
+			else if(100000 > i && i >= 10000){ this.AtualizarMemoria("0"+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal(""), dtm); }
+			else { this.AtualizarMemoria(""+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal(""), dtm);  }
 		}*/
 		for(int i = 0; i < memMax; i +=4){
-			if(i<10){ this.AtualizarMemoria("00000"+i, "00000000", dtm); }
-			else if(100 > i && i >= 10){ this.AtualizarMemoria("0000"+i, "00000000", dtm); }
-			else if(1000 > i && i >= 100){ this.AtualizarMemoria("000"+i, "00000000", dtm); }
-			else if(10000 > i && i >= 1000){ this.AtualizarMemoria("00"+i, "00000000", dtm);  }
-			else if(100000 > i && i >= 10000){ this.AtualizarMemoria("0"+i, "00000000", dtm); }
-			else { this.AtualizarMemoria(""+i, "00000000", dtm);  }
+			if(i<10){ this.AtualizarMemoria("00000"+i, "", dtm); }
+			else if(100 > i && i >= 10){ this.AtualizarMemoria("0000"+i, "", dtm); }
+			else if(1000 > i && i >= 100){ this.AtualizarMemoria("000"+i, "", dtm); }
+			else if(10000 > i && i >= 1000){ this.AtualizarMemoria("00"+i, "", dtm);  }
+			else if(100000 > i && i >= 10000){ this.AtualizarMemoria("0"+i, "", dtm); }
+			else { this.AtualizarMemoria(""+i, "", dtm);  }
 		}
 	}
 	public void AtualizarMemoria(String key, String valor,DefaultTableModel dtm){
@@ -52,8 +52,8 @@ public class Memoria {
 	}
 	public void LimparMemoria(DefaultTableModel dtm){
 		for(int i = 0; i < dtm.getRowCount(); i++){
-			if(dtm.getValueAt(i, 1).equals("00000000") == false){
-				memoria.put(dtm.getValueAt(i,0).toString(), "00000000");
+			if(dtm.getValueAt(i, 1).equals("") == false){
+				memoria.put(dtm.getValueAt(i,0).toString(), "");
 				//System.out.println(dtm.getValueAt(i, 1).toString());
 				dtm.setValueAt(memoria.get(dtm.getValueAt(i,0).toString()), i, 1);
 			}
@@ -63,7 +63,7 @@ public class Memoria {
 		String key = "Sem Memória";
 		int i = 0;
 		while(i < dtm.getRowCount()){
-			if(dtm.getValueAt(i, 1).equals("00000000")){
+			if(dtm.getValueAt(i, 1).equals("")){
 				//System.out.println("Achei Memória livre!");
 				key = dtm.getValueAt(i, 0).toString();
 				break;
