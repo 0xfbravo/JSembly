@@ -17,13 +17,16 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDesktopPane;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JWindow;
 import javax.swing.SwingConstants;
@@ -32,6 +35,7 @@ import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyledDocument;
 
@@ -54,15 +58,16 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("serial")
 public class Janela extends JFrame{
+	File temp;
 	ArrayList<Color> cores = new ArrayList<Color>();
 	Configuracoes conf = new Configuracoes();
+	int linhaAtualStep = 0;
 	Timer alphaChanger;
 	private String titulo;
 	private int altura,largura;
@@ -104,15 +109,10 @@ public class Janela extends JFrame{
 	
 	public Janela(String titulo,int largura,int altura){
 		for(int i = 0; i < 100; i ++){
-			cores.add(new Color(169,i,124)); // Cor Instrução 1
-			cores.add(new Color(i+50,139,i)); // Cor Instrução 2
-			cores.add(new Color(i,169,115)); // Cor Instrução 3
-			cores.add(new Color(i+33,i,i+22)); // Cor Instrução 4
-			cores.add(new Color(115,i,154)); // Cor Instrução 5
-			cores.add(new Color(i+34,115,i)); // Cor Instrução 6
+			cores.add(Cores.gerarCores()); // Cor Aleatória
 		}
 		try{
-		File temp = File.createTempFile("temp-file-name", ".tmp");
+		temp = File.createTempFile("temp-file-name", ".tmp");
 		System.out.println("Arquivo Temporário : " + temp.getAbsolutePath());
 		
 		this.setTitulo(titulo);
@@ -204,7 +204,7 @@ public class Janela extends JFrame{
 					int modelRow = convertRowIndexToModel(row);
 					int instrucao = 4;
 					String type = (String)getModel().getValueAt(modelRow, 1);
-					if ((!"".equals(type)) && modelRow < instrucao){ c.setBackground(new Color(169,115,124)); c.setForeground(Color.WHITE);}
+					if ((!"".equals(type)) && modelRow < instrucao){ c.setBackground(cores.get(0)); c.setForeground(Color.WHITE);}
 					for(int i = 1; i < 100; i++){
 						if ((!"".equals(type)) && (modelRow >= instrucao*i && modelRow < instrucao*(i+1))){ c.setBackground(cores.get(i)); c.setForeground(Color.WHITE); }
 					}
@@ -257,7 +257,7 @@ public class Janela extends JFrame{
 				{
 					c.setBackground(getBackground());
 					int modelRow = convertRowIndexToModel(row);
-					String type = (String)getModel().getValueAt(modelRow, 3);
+					String type = (String)getModel().getValueAt(modelRow, 4);
 					if(type.equals("Ativo")){
 						c.setBackground(new Color(226,226,226));
 						c.setForeground(new Color(97,134,26));
@@ -265,14 +265,14 @@ public class Janela extends JFrame{
 						centro.setHorizontalAlignment(SwingConstants.CENTER);
 	            		c.setFont(getFont().deriveFont(Font.BOLD));
 	            		centro.setIcon(Utilidades.buscarIcone("img/connect.png"));
-	            		getColumnModel().getColumn(3).setCellRenderer(centro);
+	            		getColumnModel().getColumn(4).setCellRenderer(centro);
 					} else {
 						c.setBackground(new Color(247,247,247));
 						DefaultTableCellRenderer centro = new DefaultTableCellRenderer();
 						centro.setHorizontalAlignment(SwingConstants.CENTER);
 	            		centro.setForeground(new Color(167,167,167));
 	            		centro.setIcon(Utilidades.buscarIcone("img/disconnect.png"));
-	            		getColumnModel().getColumn(3).setCellRenderer(centro);
+	            		getColumnModel().getColumn(4).setCellRenderer(centro);
 					}
 				}
 
@@ -286,7 +286,7 @@ public class Janela extends JFrame{
                     boolean hasFocus,
                     int row,
                     int column) {
-            	super.getTableCellRendererComponent(table, value, isSelected,hasFocus, row, column);     
+            	super.getTableCellRendererComponent(table, value, isSelected,hasFocus, row, column);
             	if (column == 0) {
             		setFont( getFont().deriveFont(Font.BOLD) );
             		setForeground(new Color(55,55,55));
@@ -295,26 +295,28 @@ public class Janela extends JFrame{
             		setForeground(new Color(28,89,75));
             	}
             	if (column == 2) {
-            		setForeground(new Color(181,30,40));
+            		setForeground(new Color(28,89,75));
             	}
             	if (column == 3) {
-            		DefaultTableCellRenderer centro = new DefaultTableCellRenderer();
-            		centro.setHorizontalAlignment(SwingConstants.CENTER);
-            		listaReg.getColumnModel().getColumn(3).setCellRenderer(centro);
+            		setForeground(new Color(181,30,40));
             	}
             	setBackground(Color.WHITE);
             	return this;
             }                                            
 		});
 		DefaultTableModel dtm = new DefaultTableModel(0, 0);
-		String header[] = new String[] { "Registrador", "Número", "Valor Binário", "Atividade" };
+		String header[] = new String[] { "Registrador", "ID", "Valor", "Valor Binário", "Atividade" };
 		dtm.setColumnIdentifiers(header);
 		listaReg.setModel(dtm);
 		listaReg.setEnabled(false);
 		listaReg.getColumnModel().getColumn(0).setHeaderValue("Registrador");
-		listaReg.getColumnModel().getColumn(1).setHeaderValue("Número");
-		listaReg.getColumnModel().getColumn(2).setHeaderValue("Valor Binário");
-		listaReg.getColumnModel().getColumn(3).setHeaderValue("Atividade");
+		listaReg.getColumnModel().getColumn(0).setMaxWidth(63);
+		listaReg.getColumnModel().getColumn(1).setHeaderValue("ID");
+		listaReg.getColumnModel().getColumn(1).setMaxWidth(23);
+		listaReg.getColumnModel().getColumn(2).setHeaderValue("Valor");
+		listaReg.getColumnModel().getColumn(2).setMaxWidth(46);
+		listaReg.getColumnModel().getColumn(3).setHeaderValue("Valor Binário");
+		listaReg.getColumnModel().getColumn(4).setHeaderValue("Atividade");
 
 		for(int i = 0; i < ArraysLists.registradores.size(); i ++){
 			String atividade = "Inativo";
@@ -324,6 +326,7 @@ public class Janela extends JFrame{
 			dtm.addRow(new Object[]{
 					ArraysLists.registradores.get(i).toString(),
 					ArraysLists.registradores.get(i).getId(),
+					"0",
 					ArraysLists.registradores.get(i).getValorBits(),
 					atividade});
 		}
@@ -434,10 +437,7 @@ public class Janela extends JFrame{
 			itensMenu.addMouseListener(new MouseListener(){
 
 				@Override
-				public void mouseClicked(MouseEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
+				public void mouseClicked(MouseEvent arg0) {}
 
 				@Override
 				public void mouseEntered(MouseEvent arg0) {
@@ -472,16 +472,10 @@ public class Janela extends JFrame{
 				}
 
 				@Override
-				public void mousePressed(MouseEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
+				public void mousePressed(MouseEvent arg0) {}
 
 				@Override
-				public void mouseReleased(MouseEvent arg0) {
-					// TODO Auto-generated method stub
-					
-				}
+				public void mouseReleased(MouseEvent arg0) {}
 				
 			});
 			painelMenu.add(itensMenu);
@@ -490,20 +484,70 @@ public class Janela extends JFrame{
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
 							System.out.println(ArraysLists.itensMenuLista.get(0).getNomeMenu());
+							try {
+								temp = File.createTempFile("temp-file-name", ".tmp");
+								linguagemMIPS.setText("");
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+							System.out.println("Arquivo Temporário : " + temp.getAbsolutePath());
 						}
 					});
 					break;
 				case 1:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
-							System.out.println(ArraysLists.itensMenuLista.get(1).getNomeMenu());
+							JFileChooser escolherPasta = new JFileChooser(); 
+							escolherPasta.setCurrentDirectory(new java.io.File("."));
+							escolherPasta.setDialogTitle(ArraysLists.itensMenuLista.get(2).getNomeMenu());
+							escolherPasta.setVisible(true);
+							int retorno = escolherPasta.showSaveDialog(null);
+							if (retorno==JFileChooser.APPROVE_OPTION){
+								temp = new File(escolherPasta.getSelectedFile().getAbsolutePath());
+								linguagemMIPS.setText("");
+								ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp.getAbsolutePath());
+								int n= 0;
+								for(String linha : linhasLidas){
+									try {
+										doc.insertString(n, linha+"\n", null);
+									} catch (BadLocationException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+								}
+							} else {
+								JOptionPane.showMessageDialog(Janela.this,
+										"<html>"
+										+ "O caminho do arquivo não foi encontrado.<br>"
+										+ "<i>Favor selecionar novamente.</i>"
+										+ "</html>",
+										"Caminho do Arquivo não selecionado",
+										JOptionPane.ERROR_MESSAGE);
+							}
 						}
 					});
 					break;
 				case 2:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
-							System.out.println(ArraysLists.itensMenuLista.get(2).getNomeMenu());
+							JFileChooser escolherPasta = new JFileChooser(); 
+							escolherPasta.setCurrentDirectory(new java.io.File("."));
+							escolherPasta.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+							escolherPasta.setDialogTitle(ArraysLists.itensMenuLista.get(2).getNomeMenu());
+							escolherPasta.setVisible(true);
+							int retorno = escolherPasta.showSaveDialog(null);
+							if (retorno==JFileChooser.APPROVE_OPTION){
+								File arqRenomeado = new File(escolherPasta.getSelectedFile().getAbsolutePath());
+								temp.renameTo(arqRenomeado);
+							} else {
+								JOptionPane.showMessageDialog(Janela.this,
+										"<html>"
+										+ "O caminho do arquivo não foi encontrado.<br>"
+										+ "Favor selecionar novamente."
+										+ "</html>",
+										"Caminho do Arquivo não selecionado",
+										JOptionPane.ERROR_MESSAGE);
+							}
 						}
 					});
 					break;
@@ -575,6 +619,9 @@ public class Janela extends JFrame{
 							    		  				binario = "0" + binario ;
 							    		  			}
 							    		  			lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),binario);
+							    		  			if(lm.length() > 32){
+							    		  				JOptionPane.showMessageDialog(Janela.this, "Overflow na linha: "+linhaAtual, "Detectado overflow!", JOptionPane.ERROR_MESSAGE);
+							    		  			} else {
 							    		  			memoria.AlocarMemoria(lm, dtmMem);
 							    		  			painelLinguagemMaquina.append(lm+"\n");
 							    		  			dtmExec.addRow(new Object[]{
@@ -582,6 +629,7 @@ public class Janela extends JFrame{
 								    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
 								    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+enderecoOuLabel,
 								    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
+							    		  			}
 							    		  		}
 							    		  		break;
 							    		  	
@@ -614,9 +662,113 @@ public class Janela extends JFrame{
 						}
 					});
 					break;
+				// -- Compilar por Step
+				case 4:
+					itensMenu.setEnabled(false);
+					itensMenu.addActionListener(new ActionListener(){
+						public void actionPerformed(ActionEvent e){
+							String lm = "Sem Linguagem de Máquina";
+							painelCima.setSelectedComponent(linguagemMaquina);
+							ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp.getAbsolutePath());
+							// Busca por linhas, no arquivo
+							for(String linha : linhasLidas){
+								linhaAtualStep++;
+								ArraysLists.regEncontrados.clear();
+								Pattern operador = Pattern.compile("\\w+", Pattern.CASE_INSENSITIVE);
+								Pattern registrador = Pattern.compile("[$]\\w+", Pattern.CASE_INSENSITIVE);
+								Pattern endereco = Pattern.compile(" \\w+|[0-9]|\\,w+|,[0-9]", Pattern.CASE_INSENSITIVE);
+								Pattern enderecoTipoI = Pattern.compile(",\\w+|,[0-9]", Pattern.CASE_INSENSITIVE);
+								Pattern label = Pattern.compile("\\b\\w{1,8}[:]", Pattern.CASE_INSENSITIVE);
+								
+								Matcher matcherLbl = label.matcher(linha);
+								if(matcherLbl.find()){
+									String lbl = matcherLbl.group().substring(matcherLbl.start(),matcherLbl.end()-1);
+									memoria.AtualizarMemoria(memoria.BuscarMemoria(dtmMem),lbl,dtmMem);
+									if(memoria.memoria.containsValue(lbl)){
+										System.out.println(memoria.BuscarEndereco(lbl, dtmMem));
+									}
+								}
+
+								// Busca de Operadores
+							    Matcher matcher = operador.matcher(linha);
+							    if(matcher.find()) {
+								    // Busca de Registradores
+								    Matcher matcher2 = registrador.matcher(linha);
+								    while(matcher2.find()) {
+								      for(int i = 0; i < ArraysLists.registradores.size(); i++){
+								    	  if(matcher2.group().toLowerCase().equals(ArraysLists.registradores.get(i).toString())){
+								    		  //System.out.println("Achei um registrador: "+registradores.get(i).toString());
+								    		  ArraysLists.regEncontrados.add(ArraysLists.registradores.get(i));
+								    		  break;
+								    	  }
+								      }
+								    }
+							      for(int i = 0; i < ArraysLists.operadores.size(); i++){
+							    	  if(matcher.group().toLowerCase().equals(ArraysLists.operadores.get(i).toString())){
+							    		 //System.out.println("Achei um operador: "+ArraysLists.operadores.get(i).toString());
+						    		  	  String enderecoOuLabel = null;
+							    		  switch(ArraysLists.operadores.get(i).getTipoIntrucao()){
+							    		  	case 0:
+							    		  		//System.out.println("Tipo I");
+							    		  		// Busca de Endereços
+							    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
+							    		  		Registrador.AtualizarAtividade(dtm);
+							    		  		if(ArraysLists.operadores.get(i).toString() == "bne" || ArraysLists.operadores.get(i).toString() == "beq"){
+								    		  		Matcher matcher3 = enderecoTipoI.matcher(linha);
+													if(matcher3.find()) { enderecoOuLabel = matcher3.group().substring(1); }
+													lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),enderecoOuLabel);
+								    		  		painelLinguagemMaquina.append(lm+"\n");
+							    		  		} else {
+							    		  			Matcher matcher3 = enderecoTipoI.matcher(linha);
+													if(matcher3.find()) { enderecoOuLabel = matcher3.group().substring(1); }
+							    		  			int decimal = Integer.parseInt(enderecoOuLabel, 10);
+							    		  			String binario = Integer.toBinaryString(decimal);
+							    		  			while(binario.length()<16){
+							    		  				binario = "0" + binario ;
+							    		  			}
+							    		  			lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),binario);
+							    		  			memoria.AlocarMemoria(lm, dtmMem);
+							    		  			painelLinguagemMaquina.append(lm+"\n");
+							    		  			dtmExec.addRow(new Object[]{
+								    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
+								    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
+								    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+enderecoOuLabel,
+								    		  				linhaAtualStep+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
+							    		  		}
+							    		  		break;
+							    		  	
+							    		  	case 1:
+							    		  		//System.out.println("Tipo J");
+							    		  		// Busca de Endereços
+							    		  		Matcher matcher4 = endereco.matcher(linha);
+												if(matcher4.find()) { enderecoOuLabel = matcher4.group().substring(1); }							    		  		
+							    		  		painelLinguagemMaquina.append(TipoInstrucao.InstrucaoTipoJ(ArraysLists.operadores.get(i).getValorBits(),enderecoOuLabel)+"\n");
+							    		  		break;
+							    		  	case 2:
+							    		  		//System.out.println("Tipo R");
+							    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
+							    		  		Registrador.AtualizarAtividade(dtm);
+							    		  		lm = TipoInstrucao.InstrucaoTipoR(ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),ArraysLists.regEncontrados.get(2).getValorBits(),"00000",ArraysLists.operadores.get(i).getValorBits());
+							    		  		memoria.AlocarMemoria(lm, dtmMem);
+							    		  		painelLinguagemMaquina.append(lm+"\n");
+							    		  		dtmExec.addRow(new Object[]{
+							    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
+							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
+							    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+",$"+ArraysLists.regEncontrados.get(2).getId(),
+							    		  				linhaAtualStep+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+ArraysLists.regEncontrados.get(2).toString()});
+							    		  		break;
+							    		  }
+							    		  break;
+							    	  }
+							      }
+							    }
+							}
+						}
+					});
+					break;
 					
 				// -- Configurações
-				case 4:
+				case 5:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
 							//System.out.println(ArraysLists.itensMenuLista.get(4).getNomeMenu());
@@ -664,14 +816,99 @@ public class Janela extends JFrame{
 						}
 					});
 					break;
-				case 5:
+				// -- Adicionar Valores
+				case 6:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
-							System.out.println(ArraysLists.itensMenuLista.get(5).getNomeMenu());
+							JFrame addValor = new JFrame("Adicionar Valor Ao Registrador");
+							addValor.setVisible(true);
+							addValor.setSize(350, 230);
+							addValor.setResizable(false);
+							addValor.setIconImage(Utilidades.buscarIcone("img/page_white_wrench.png").getImage());
+							addValor.setLocationRelativeTo(null);
+							addValor.requestFocusInWindow();
+							
+							JDesktopPane jdpi = new JDesktopPane();
+							addValor.add(jdpi);
+							
+							JLabel lblAdicionar = new JLabel("Registrador");
+							lblAdicionar.setSize(170,20);
+							lblAdicionar.setLocation(30, 10);
+							jdpi.add(lblAdicionar);
+							JComboBox<Registrador> registradores1 = new JComboBox<Registrador>();
+							registradores1.setSize(80, 20);
+							for(int i = 0; i < ArraysLists.registradores.size(); i++){
+								registradores1.addItem(ArraysLists.registradores.get(i));
+							}
+							registradores1.setLocation(30, 30);
+							jdpi.add(registradores1);
+							
+							JTextField valor1 = new JTextField();
+							valor1.setSize(170,20);
+							valor1.setLocation(140, 30);
+				            jdpi.add(valor1);
+				            
+				            JLabel lblValor = new JLabel("Valor");
+				            lblValor.setSize(170, 20);
+				            lblValor.setLocation(140, 10);
+				            jdpi.add(lblValor);
+							
+				            //caixa 2
+				            JComboBox<Registrador> registradores2 = new JComboBox<Registrador>();
+							registradores2.setSize(80, 20);
+							for(int i = 0; i < ArraysLists.registradores.size(); i++){
+								registradores2.addItem(ArraysLists.registradores.get(i));
+							}
+							registradores2.setLocation(30, 60);
+							jdpi.add(registradores2);
+				            
+							JTextField valor2 = new JTextField();
+							valor2.setSize(170,20);
+							valor2.setLocation(140, 60);
+				            jdpi.add(valor2);
+				            
+				            //caixa 3
+							JComboBox<Registrador> registradores3 = new JComboBox<Registrador>();
+							registradores3.setSize(80, 20);
+							for(int i = 0; i < ArraysLists.registradores.size(); i++){
+								registradores3.addItem(ArraysLists.registradores.get(i));
+							}
+							registradores3.setLocation(30, 90);
+							jdpi.add(registradores3);
+							
+							JTextField valor3 = new JTextField();
+							valor3.setSize(170,20);
+							valor3.setLocation(140, 90);
+				            jdpi.add(valor3);
+				            //caixa 4
+							JComboBox<Registrador> registradores4 = new JComboBox<Registrador>();
+							registradores4.setSize(80, 20);
+							for(int i = 0; i < ArraysLists.registradores.size(); i++){
+								registradores4.addItem(ArraysLists.registradores.get(i));
+							}
+							registradores4.setLocation(30, 120);
+							jdpi.add(registradores4);
+							
+							JTextField valor4 = new JTextField();
+							valor4.setSize(170,20);
+							valor4.setLocation(140, 120);
+				            jdpi.add(valor4);
+							//botao
+							
+							JButton salve = new JButton("Salvar");
+							salve.setSize(60,30);
+							salve.setLocation(250, 160);
+							jdpi.add(salve);
+							salve.addActionListener(new ActionListener(){
+
+								@Override
+								public void actionPerformed(ActionEvent e) {
+									
+								}});
 						}
 					});
 					break;
-				case 6:
+				case 7:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
 							System.out.println(ArraysLists.itensMenuLista.get(6).getNomeMenu());

@@ -2,6 +2,7 @@ package com.jsembly.funcoes;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +14,15 @@ import com.jsembly.extras.Utilidades;
 import com.jsembly.main.ArraysLists;
 
 public class Cores {
+	public static Color gerarCores(){
+		Random rand = new Random();
+		float r = rand.nextFloat();
+		float g = rand.nextFloat();
+		float b = rand.nextFloat();
+		
+		Color randomColor = new Color(r, g, b);
+		return randomColor;
+	}
 	
 	public static void buscarCores(String temp,JTextPane linguagemMIPS){
 	ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp);
