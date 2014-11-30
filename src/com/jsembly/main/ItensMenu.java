@@ -2,14 +2,14 @@ package com.jsembly.main;
 
 
 public enum ItensMenu{
-	Novo(0,"Novo","img/write13.png",""),
-	Abrir(1,"Abrir Arquivo","img/folder5.png","img/folder5_hover.png"),
-	Salvar(2,"Salvar Arquivo","img/save23.png",""),
-	Compilar(3,"Compilar","img/data45.png",""),
-	CompilarStep(4,"Compilar por Step","img/data45_step.png",""),
-	Configuracoes(5,"Configurações","img/tools6.png",""),
-	Valores(6,"Adicionar Valores","img/losing.png",""),
-	Dicas(7,"Dicas","img/light7.png","");
+	Novo(0,"Novo","img/add118_hover.png","img/add118.png"),
+	Abrir(1,"Abrir","img/file18_hover.png","img/file18.png"),
+	Salvar(2,"Salvar","img/save27_hover.png","img/save27.png"),
+	Compilar(3,"Compilar","img/data45_hover.png","img/data45.png"),
+	CompilarStep(4,"Step by Step","img/media23_hover.png","img/media23.png"),
+	Configuracoes(5,"Configurações","img/screwdriver3_hover.png","img/screwdriver3.png"),
+	Valores(6,"Valor Registrador","img/losing_hover.png","img/losing.png"),
+	Dicas(7,"Dicas","img/lightbulb-1_hover.png","img/lightbulb-1.png");
 
 	private int id;
 	private String caminhoImg;
@@ -30,10 +30,11 @@ public enum ItensMenu{
 	public void setNomeMenu(String nomeMenu) {
 		this.nomeMenu = nomeMenu;
 	}
-	ItensMenu(int id,String nomeMenu, String caminhoImg, String caminhoImgHover){
+	ItensMenu(int id,String nomeMenu, String caminho, String caminhoHover){
 		this.setId(id);
-		this.setCaminhoImg(caminhoImg);
+		this.setCaminhoImg(caminho);
 		this.setNomeMenu(nomeMenu);
+		this.setCamingoImgHover(caminhoHover);
 	}
 
 	public int getId() {

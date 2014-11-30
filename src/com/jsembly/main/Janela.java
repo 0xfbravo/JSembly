@@ -32,6 +32,7 @@ import javax.swing.JWindow;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -39,8 +40,12 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyledDocument;
 
+import com.jsembly.extras.JTextFieldLimit;
 import com.jsembly.extras.TextLineNumber;
 import com.jsembly.extras.Utilidades;
+import com.jsembly.funcoes.ArithmeticLogicUnit;
+import com.jsembly.funcoes.BinaryArithmetic;
+import com.jsembly.funcoes.BinaryLogic;
 import com.jsembly.funcoes.Configuracoes;
 import com.jsembly.funcoes.ConversaoBase;
 import com.jsembly.funcoes.Cores;
@@ -64,6 +69,7 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("serial")
 public class Janela extends JFrame{
+	BinaryArithmetic binAri = new BinaryArithmetic();
 	String lblOito;
 	File temp;
 	ArrayList<Color> cores = new ArrayList<Color>();
@@ -91,6 +97,12 @@ public class Janela extends JFrame{
 		JTabbedPane tblMemoria = new JTabbedPane();
 	
 	JDesktopPane splPainel = new JDesktopPane();
+	FileNameExtensionFilter filter = new FileNameExtensionFilter("Arquivo Assembly (*.asm)", "asm", "assembly");
+	
+	JTextField valor1 = null;
+	JTextField valor2 = null;
+	JTextField valor3 = null;
+	JTextField valor4 = null;
 
 	/*
 	 * Método para criação da Janela Interna
@@ -113,7 +125,7 @@ public class Janela extends JFrame{
 			cores.add(Cores.gerarCores()); // Cor Aleatória
 		}
 		try{
-		temp = File.createTempFile("temp-file-name", ".tmp");
+		temp = File.createTempFile("temp-file-name", ".asm");
 		System.out.println("Arquivo Temporário : " + temp.getAbsolutePath());
 		
 		this.setTitulo(titulo);
@@ -148,14 +160,11 @@ public class Janela extends JFrame{
 									Cores.buscarCores(temp.getAbsolutePath(),linguagemMIPS);
 								break;
 							}
-						} catch (IOException e) {
-						e.printStackTrace();
-						}
+						} catch (IOException e) { e.printStackTrace(); }
 					}
 					
 					@Override
-					public void keyTyped(KeyEvent arg0) {
-					}
+					public void keyTyped(KeyEvent arg0) {}
 				});
 		
 		JScrollPane linguagemMIPS_Scroll = new JScrollPane(linguagemMIPS);
@@ -221,13 +230,11 @@ public class Janela extends JFrame{
                     boolean hasFocus,
                     int row,
                     int column) {
-            	super.getTableCellRendererComponent(table, value, isSelected,hasFocus, row, column);
-            	// Prepare default color         
+            	super.getTableCellRendererComponent(table, value, isSelected,hasFocus, row, column);      
             	Color color = table.getForeground();
             	if (column == 0) {
             		setFont(getFont().deriveFont(Font.BOLD));
-            			color = new Color(67,116,181);
-            			//new Color(160,43,4)
+            		color = new Color(67,116,181);
             	}
             	setForeground(color);
             	return this;
@@ -293,15 +300,9 @@ public class Janela extends JFrame{
             		setFont( getFont().deriveFont(Font.BOLD) );
             		setForeground(new Color(55,55,55));
             	}
-            	if (column == 1) {
-            		setForeground(new Color(28,89,75));
-            	}
-            	if (column == 2) {
-            		setForeground(new Color(206,159,31));
-            	}
-            	if (column == 3) {
-            		setForeground(new Color(118,146,153));
-            	}
+            	if (column == 1) { setForeground(new Color(28,89,75)); }
+            	if (column == 2) { setForeground(new Color(206,159,31)); }
+            	if (column == 3) { setForeground(new Color(118,146,153)); }
             	setBackground(Color.WHITE);
             	return this;
             }                                            
@@ -322,13 +323,11 @@ public class Janela extends JFrame{
 
 		for(int i = 0; i < ArraysLists.registradores.size(); i ++){
 			String atividade = "Inativo";
-			if(ArraysLists.registradores.get(i).isAtivo()){
-				atividade = "Ativo";
-			}
+			if(ArraysLists.registradores.get(i).isAtivo()){atividade = "Ativo";}
 			dtm.addRow(new Object[]{
 					ArraysLists.registradores.get(i).toString(),
 					ArraysLists.registradores.get(i).getId(),
-					"0",
+					ArraysLists.registradores.get(i).getValorInicial(),
 					ArraysLists.registradores.get(i).getValorBits(),
 					atividade});
 		}
@@ -377,9 +376,7 @@ public class Janela extends JFrame{
             		setFont( getFont().deriveFont(Font.BOLD) );
             		setForeground(new Color(28,89,75));
             	}
-            	if (column == 2) {
-            		setForeground(new Color(181,30,40));
-            	}
+            	if (column == 2) { setForeground(new Color(181,30,40)); }
             	setBackground(Color.WHITE);
             	return this;
             }                                            
@@ -395,24 +392,12 @@ public class Janela extends JFrame{
 		for(int i = 0; i < ArraysLists.operadores.size(); i ++){
 			String tipoInstrucao = null;
 			switch(ArraysLists.operadores.get(i).getTipoIntrucao()){
-				case 0:
-					tipoInstrucao = "Tipo I";
-					break;
-				case 1:
-					tipoInstrucao = "Tipo J";
-					break;
-				case 2:
-					tipoInstrucao = "Tipo R";
-					break;
-				case 3:
-					tipoInstrucao = "Tipo I (Load/Store)";
-					break;
-				case 4:
-					tipoInstrucao = "Tipo R (Jump/Branch)";
-					break;
-				case 5:
-					tipoInstrucao = "Tipo I (Jump/Branch)";
-					break;
+				case 0: tipoInstrucao = "Tipo I"; break;
+				case 1: tipoInstrucao = "Tipo J"; break;
+				case 2: tipoInstrucao = "Tipo R"; break;
+				case 3: tipoInstrucao = "Tipo I (Load/Store)"; break;
+				case 4: tipoInstrucao = "Tipo R (Jump/Branch)"; break;
+				case 5: tipoInstrucao = "Tipo I (Jump/Branch)"; break;
 			}
 			dtm2.addRow(new Object[]{ArraysLists.operadores.get(i).toString(), tipoInstrucao, ArraysLists.operadores.get(i).getValorBits()});
 		}
@@ -423,18 +408,25 @@ public class Janela extends JFrame{
 		
 		janelaInicial.add(painelMenu, BorderLayout.WEST);
 		painelMenu.setLayout(layoutMenu);
-		painelMenu.setBackground(new Color(29,88,97));
+		painelMenu.setBackground(new Color(63,63,63));
+		painelMenu.setPreferredSize(new Dimension(120,0));
 		for(int i =0; i < ItensMenu.values().length; i++){
+			
 			SoftJButton itensMenu = new SoftJButton();
 			itensMenu.setIcon(Utilidades.buscarIcone(ArraysLists.itensMenuLista.get(i).getCaminhoImg()));
 			itensMenu.setToolTipText(ArraysLists.itensMenuLista.get(i).getNomeMenu());
+			itensMenu.setText(ArraysLists.itensMenuLista.get(i).getNomeMenu());
 			itensMenu.setBorder(BorderFactory.createEmptyBorder());
 			itensMenu.setPreferredSize(new Dimension(90,0));
 			itensMenu.setBorderPainted(false);
 			itensMenu.setFocusPainted(false);
+			itensMenu.setHorizontalTextPosition(JButton.CENTER);
+			itensMenu.setVerticalTextPosition(JButton.BOTTOM);
 			itensMenu.setContentAreaFilled(false);
 			itensMenu.setOpaque(true);
-			itensMenu.setBackground(new Color(29,88,97));
+			itensMenu.setBackground(new Color(63,63,63));
+			itensMenu.setForeground(Color.WHITE);
+			int id = ArraysLists.itensMenuLista.get(i).getId();
 
 			itensMenu.addMouseListener(new MouseListener(){
 
@@ -443,7 +435,9 @@ public class Janela extends JFrame{
 
 				@Override
 				public void mouseEntered(MouseEvent arg0) {
-					itensMenu.setBackground(new Color(131,186,194));
+					itensMenu.setForeground(Color.BLACK);
+					itensMenu.setBackground(new Color(209,209,209));
+					itensMenu.setIcon(Utilidades.buscarIcone(ArraysLists.itensMenuLista.get(id).getCamingoImgHover()));
 					alphaChanger = new Timer(15, new ActionListener() {
 
 			            private float incrementer = -.03f;
@@ -467,7 +461,9 @@ public class Janela extends JFrame{
 
 				@Override
 				public void mouseExited(MouseEvent arg0) {
-					itensMenu.setBackground(new Color(29,88,97));
+					itensMenu.setForeground(Color.WHITE);
+					itensMenu.setBackground(new Color(63,63,63));
+					itensMenu.setIcon(Utilidades.buscarIcone(ArraysLists.itensMenuLista.get(id).getCaminhoImg()));
 					alphaChanger.stop();
 					itensMenu.setAlpha(1);
 					repaint();
@@ -482,41 +478,120 @@ public class Janela extends JFrame{
 			});
 			painelMenu.add(itensMenu);
 			switch(ArraysLists.itensMenuLista.get(i).getId()){
+				// -- Novo Arquivo
 				case 0:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
-							System.out.println(ArraysLists.itensMenuLista.get(0).getNomeMenu());
-							try {
-								temp = File.createTempFile("temp-file-name", ".tmp");
-								linguagemMIPS.setText("");
-							} catch (IOException e1) {
-								e1.printStackTrace();
+							int resposta = JOptionPane.showConfirmDialog(Janela.this,
+									"<html>"
+									+ "Deseja fechar o arquivo atual e abrir um novo?<br>"
+									+ "<i>Aconselhamos que o salve a fim de não perder dados importantes.</i>"
+									+ "</html>",
+									"Abrir arquivo novo?",
+									JOptionPane.YES_NO_OPTION);
+							if(resposta == JOptionPane.YES_OPTION){
+								try {
+									temp = File.createTempFile("temp-file-name", ".asm");
+									linguagemMIPS.setText("");
+									Registrador.LimparAtividade(dtm);
+									dtmExec.setRowCount(0);
+									memoria.LimparMemoria(dtmMem);
+									dtmMem.fireTableDataChanged();
+								} catch (IOException e1) {
+									e1.printStackTrace();
+								}
+							} else {
+								JOptionPane.showMessageDialog(Janela.this,
+										"<html>"
+										+ "Salve o arquivo <b>antes</b> de iniciar um novo, a fim de não perder dados importantes."
+										+ "</html>",
+										"Dicas jSembly",
+										JOptionPane.WARNING_MESSAGE);
 							}
-							System.out.println("Arquivo Temporário : " + temp.getAbsolutePath());
+
 						}
 					});
 					break;
-				case 1:
+				// -- Abrir Arquivo
+					case 1:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
-							JFileChooser escolherPasta = new JFileChooser(); 
-							escolherPasta.setCurrentDirectory(new java.io.File("."));
-							escolherPasta.setDialogTitle(ArraysLists.itensMenuLista.get(2).getNomeMenu());
-							escolherPasta.setVisible(true);
-							int retorno = escolherPasta.showSaveDialog(null);
+							JFileChooser abrirArquivo = new JFileChooser(); 
+							abrirArquivo.setCurrentDirectory(new java.io.File("."));
+							abrirArquivo.setDialogTitle(ArraysLists.itensMenuLista.get(1).getNomeMenu());
+							abrirArquivo.setVisible(true);
+							abrirArquivo.setFileFilter(filter);
+							int retorno = abrirArquivo.showSaveDialog(null);
 							if (retorno==JFileChooser.APPROVE_OPTION){
-								temp = new File(escolherPasta.getSelectedFile().getAbsolutePath());
+								temp = new File(abrirArquivo.getSelectedFile().getAbsolutePath());
 								linguagemMIPS.setText("");
+								Registrador.LimparAtividade(dtm);
+								dtmExec.setRowCount(0);
+								memoria.LimparMemoria(dtmMem);
+								dtmMem.fireTableDataChanged();
 								ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp.getAbsolutePath());
-								int n= 0;
 								for(String linha : linhasLidas){
 									try {
-										doc.insertString(n, linha+"\n", null);
+										doc.insertString(doc.getLength(), linha+"\n", null);
 									} catch (BadLocationException e1) {
 										e1.printStackTrace();
 									}
 								}
-							} else {
+							}
+						}
+					});
+					break;
+				// -- Salvar Arquivo
+				case 2:
+					itensMenu.addActionListener(new ActionListener(){
+						public void actionPerformed(ActionEvent e){
+							JFileChooser salvarArquivo = new JFileChooser(); 
+							salvarArquivo.setCurrentDirectory(temp.getAbsoluteFile());
+							salvarArquivo.setDialogTitle(ArraysLists.itensMenuLista.get(2).getNomeMenu());
+							salvarArquivo.setVisible(true);
+							salvarArquivo.setSelectedFile(temp.getAbsoluteFile());
+							salvarArquivo.setFileFilter(filter);
+							int retorno = salvarArquivo.showSaveDialog(null);
+							if (retorno==JFileChooser.APPROVE_OPTION){
+								linguagemMIPS.setText("");
+								File arqRenomeado;
+								if(temp.getAbsolutePath().contains(".")){
+									arqRenomeado = new File(salvarArquivo.getSelectedFile().getAbsolutePath());
+								} else {
+									arqRenomeado = new File(salvarArquivo.getSelectedFile().getAbsolutePath()+".asm");
+								}
+								temp.renameTo(arqRenomeado);
+								JOptionPane.showMessageDialog(Janela.this,
+										"<html>"
+										+ "O arquivo foi salvo com <b style='color: #375828;'>SUCESSO</b>!<br>"
+										+ "<i>Nenhuma alteração será perdida.</i>"
+										+ "</html>",
+										"Arquivo salvo com sucesso!",
+										JOptionPane.DEFAULT_OPTION);
+								linguagemMIPS.setText("");
+								Registrador.LimparAtividade(dtm);
+								dtmExec.setRowCount(0);
+								memoria.LimparMemoria(dtmMem);
+								dtmMem.fireTableDataChanged();
+								ArrayList<String> linhasLidas = Utilidades.LerArquivo(arqRenomeado.getAbsolutePath());
+								for(String linha : linhasLidas){
+									try {
+										doc.insertString(doc.getLength(), linha+"\n", null);
+									} catch (BadLocationException e1) {
+										e1.printStackTrace();
+									}
+								}
+							}
+							else if (retorno==JFileChooser.CANCEL_OPTION){
+								JOptionPane.showMessageDialog(Janela.this,
+										"<html>"
+										+ "O arquivo <b>não</b> foi salvo.<br>"
+										+ "<i>Caso feche o programa suas alterações serão perdidas.</i>"
+										+ "</html>",
+										"Arquivo não salvo",
+										JOptionPane.ERROR_MESSAGE);
+							}
+							else {
 								JOptionPane.showMessageDialog(Janela.this,
 										"<html>"
 										+ "O caminho do arquivo não foi encontrado.<br>"
@@ -528,56 +603,71 @@ public class Janela extends JFrame{
 						}
 					});
 					break;
-				case 2:
-					itensMenu.addActionListener(new ActionListener(){
-						public void actionPerformed(ActionEvent e){
-							JFileChooser escolherPasta = new JFileChooser(); 
-							escolherPasta.setCurrentDirectory(new java.io.File("."));
-							escolherPasta.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-							escolherPasta.setDialogTitle(ArraysLists.itensMenuLista.get(2).getNomeMenu());
-							escolherPasta.setVisible(true);
-							int retorno = escolherPasta.showSaveDialog(null);
-							if (retorno==JFileChooser.APPROVE_OPTION){
-								File arqRenomeado = new File(escolherPasta.getSelectedFile().getAbsolutePath());
-								temp.renameTo(arqRenomeado);
-							} else {
-								JOptionPane.showMessageDialog(Janela.this,
-										"<html>"
-										+ "O caminho do arquivo não foi encontrado.<br>"
-										+ "Favor selecionar novamente."
-										+ "</html>",
-										"Caminho do Arquivo não selecionado",
-										JOptionPane.ERROR_MESSAGE);
-							}
-						}
-					});
-					break;
+				// -- Compilar
 				case 3:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
+							boolean erro = false;
+							int codigoErro = 0;
 							int linhaAtual = 0;
 							ArraysLists.arrLabel.clear();
 							String lm = "Sem Linguagem de Máquina";
 							Registrador.LimparAtividade(dtm);
 							dtmExec.setRowCount(0);
 							memoria.LimparMemoria(dtmMem);
+							dtmMem.fireTableDataChanged();
 							painelLinguagemMaquina.setText("");
-							painelCima.setSelectedComponent(linguagemMaquina);
+							
 							ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp.getAbsolutePath());
-							// Busca por linhas, no arquivo
+							Pattern operador = Pattern.compile("\\w+", Pattern.CASE_INSENSITIVE);
+							Pattern registrador = Pattern.compile("[$]\\w+", Pattern.CASE_INSENSITIVE);
+							Pattern endereco = Pattern.compile(" \\w+|[0-9]|\\,w+|,[0-9]", Pattern.CASE_INSENSITIVE);
+							Pattern enderecoTipoI = Pattern.compile(",\\w+|,[0-9]", Pattern.CASE_INSENSITIVE);
+							Pattern label = Pattern.compile("\\b\\w{1,8}[:]", Pattern.CASE_INSENSITIVE);
+							
+							// Primeiro busca todas as labels do arquivo
+							//  e adiciona elas ao ArrayLIst & à Memória
+							for(String labelLida : linhasLidas){
+								Matcher matcherLbl = label.matcher(labelLida);
+								if(matcherLbl.find() && erro != true){
+									String lbl = matcherLbl.group().substring(matcherLbl.start(),matcherLbl.end()-1);
+									for(int i = 0; i < ArraysLists.arrLabel.size(); i ++){
+										if(ArraysLists.arrLabel.get(i).equals(lbl)){
+											JOptionPane.showMessageDialog(Janela.this,
+												"<html>"
+												+ "Prezado usuário, a label: <b style='color:red;'>"+lbl+"</b> já foi definida anteriormente no sistema.<br>"
+												+ "<i>Favor revisar as informações digitadas.</i>"
+												+ "</html>",
+												"Label duplicada",
+												JOptionPane.ERROR_MESSAGE);
+											ArraysLists.arrLabel.remove(lbl);
+											erro = true;
+											codigoErro = 1;
+										}
+									}
+									ArraysLists.arrLabel.add(lbl);
+								}
+							}
+							// Após encontrar todas a labels definidas
+							//  inicia uma busca por operadores,registradores, etc
+							if(erro){
+								JOptionPane.showMessageDialog(Janela.this,
+										"<html>"
+										+ "Prezado usuário, o sistema não poderá continuar a execução do código,<br>"
+										+ "pois o mesmo apresenta um erro.<br><br>"
+										+ "<b style='color:red;'>Código: "+codigoErro+"</b><br><br>"
+										+ "<i>Favor revisar as informações digitadas ou informar o código ao desenvolvedor.</i>"
+										+ "</html>",
+										"Erro na Compilação",
+										JOptionPane.ERROR_MESSAGE);
+							} else {
 							for(String linha : linhasLidas){
 								linhaAtual++;
 								ArraysLists.regEncontrados.clear();
-								Pattern operador = Pattern.compile("\\w+", Pattern.CASE_INSENSITIVE);
-								Pattern registrador = Pattern.compile("[$]\\w+", Pattern.CASE_INSENSITIVE);
-								Pattern endereco = Pattern.compile(" \\w+|[0-9]|\\,w+|,[0-9]", Pattern.CASE_INSENSITIVE);
-								Pattern enderecoTipoI = Pattern.compile(",\\w+|,[0-9]", Pattern.CASE_INSENSITIVE);
-								Pattern label = Pattern.compile("\\b\\w{1,8}[:]", Pattern.CASE_INSENSITIVE);
 								
 								Matcher matcherLbl = label.matcher(linha);
 								if(matcherLbl.find()){
 									String lbl = matcherLbl.group().substring(matcherLbl.start(),matcherLbl.end()-1);
-									ArraysLists.arrLabel.add(lbl);
 									while(lbl.length() < 8){
 										lbl += " ";
 									}
@@ -587,7 +677,6 @@ public class Janela extends JFrame{
 									}
 									memoria.AlocarMemoria(lbl,dtmMem);
 								}
-
 								// Busca de Operadores
 							    Matcher matcher = operador.matcher(linha);
 							    if(matcher.find()) {
@@ -596,7 +685,6 @@ public class Janela extends JFrame{
 								    while(matcher2.find()) {
 								      for(int i = 0; i < ArraysLists.registradores.size(); i++){
 								    	  if(matcher2.group().toLowerCase().equals(ArraysLists.registradores.get(i).toString())){
-								    		  //System.out.println("Achei um registrador: "+registradores.get(i).toString());
 								    		  ArraysLists.regEncontrados.add(ArraysLists.registradores.get(i));
 								    		  break;
 								    	  }
@@ -604,14 +692,14 @@ public class Janela extends JFrame{
 								    }
 							      for(int i = 0; i < ArraysLists.operadores.size(); i++){
 							    	  if(matcher.group().toLowerCase().equals(ArraysLists.operadores.get(i).toString())){
-							    		 //System.out.println("Achei um operador: "+ArraysLists.operadores.get(i).toString());
+							    		  
 						    		  	  String enderecoOuLabel = null;
 						    		  	  String endLbl = null;
 						    		  	  int end = 0;
 							    		  switch(ArraysLists.operadores.get(i).getTipoIntrucao()){
+							    		  
+							    		  	// -- TIPO I
 							    		  	case 0:
-							    		  		//System.out.println("Tipo I");
-							    		  		// Busca de Endereços
 							    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
 							    		  		Registrador.AtualizarAtividade(dtm);
 							    		  			Matcher matcher3 = enderecoTipoI.matcher(linha);
@@ -623,7 +711,11 @@ public class Janela extends JFrame{
 							    		  			}
 							    		  			lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),binario);
 							    		  			if(lm.length() > 32){
-							    		  				JOptionPane.showMessageDialog(Janela.this, "Overflow na linha: "+linhaAtual, "Detectado overflow!", JOptionPane.ERROR_MESSAGE);
+							    		  				JOptionPane.showMessageDialog(Janela.this,
+							    		  						"<html>"
+							    		  						+ "Overflow na linha: "
+							    		  						+ "<b style='color:red;'>"+linhaAtual+"</b>"
+							    		  						+ "</html>", "Detectado overflow!", JOptionPane.ERROR_MESSAGE);
 							    		  			} else {
 							    		  			memoria.AlocarMemoria(lm, dtmMem);
 							    		  			painelLinguagemMaquina.append(lm+"\n");
@@ -635,15 +727,22 @@ public class Janela extends JFrame{
 							    		  			}
 							    		  		break;
 							    		  	
+							    		  		
+							    		  	// -- TIPO J
 							    		  	case 1:
-							    		  		//System.out.println("Tipo J");
-							    		  		// Busca de Endereços
 							    		  		Matcher matcher4 = endereco.matcher(linha);
 												if(matcher4.find()) { enderecoOuLabel = matcher4.group().substring(1); }
+												for(int l = 0; l < ArraysLists.arrLabel.size(); l++){
+													if(ArraysLists.arrLabel.get(l).equals(enderecoOuLabel)){
+														while(enderecoOuLabel.length() < 8){
+															enderecoOuLabel += " ";
+														}
+														lblOito = enderecoOuLabel;
+														System.out.println(lblOito);
+													}
+												}
 												if(memoria.memoria.containsValue(lblOito)){
 													end = Integer.parseInt(memoria.BuscarEndereco(lblOito, dtmMem), 10)+16;
-													//System.out.println("Salva em: "+memoria.BuscarEndereco(lblOito, dtmMem));
-													//System.out.println("Proxima instrução em: "+end);
 													endLbl = ConversaoBase.converteDecimalParaBinario(end);
 												}
 												while(endLbl.length()<26){
@@ -662,8 +761,10 @@ public class Janela extends JFrame{
 							    		  				ArraysLists.operadores.get(i)+" "+novoEndLbl,
 							    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+enderecoOuLabel});
 							    		  		break;
+							    		  		
+							    		  		
+							    		  	// -- TIPO R
 							    		  	case 2:
-							    		  		//System.out.println("Tipo R");
 							    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
 							    		  		Registrador.AtualizarAtividade(dtm);
 							    		  		lm = TipoInstrucao.InstrucaoTipoR(ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),ArraysLists.regEncontrados.get(2).getValorBits(),"00000",ArraysLists.operadores.get(i).getValorBits());
@@ -674,20 +775,80 @@ public class Janela extends JFrame{
 							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
 							    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+",$"+ArraysLists.regEncontrados.get(2).getId(),
 							    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+ArraysLists.regEncontrados.get(2).toString()});
+
+							    		  		String valorReg2 = null;
+							    		  		String valorReg3 = null;
+							    		  		for(int r = 0; r < dtm.getRowCount(); r++){
+							    		  			if(dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(1).toString())){
+							    		  				valorReg2 = dtm.getValueAt(r, 2).toString();
+							    		  			}
+							    		  			else if(dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(2).toString())){
+							    		  				valorReg3 = dtm.getValueAt(r, 2).toString();
+							    		  			}
+							    		  		}
+							    		  		int regSalvar = 0;
+							    		  		switch(ArraysLists.operadores.get(i).getId()){
+							    		  			// ADD
+							    		  			case 0:
+							    		  				regSalvar = ArithmeticLogicUnit.add(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10));
+							    		  				for(int r = 0; r < dtm.getRowCount(); r++){
+							    		  					if(dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+							    		  						dtm.setValueAt(regSalvar, r, 2);
+							    		  					}
+							    		  				}
+							    		  			break;
+							    		  			// SUB
+							    		  			case 1:
+							    		  				regSalvar = ArithmeticLogicUnit.sub(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10));
+							    		  				for(int r = 0; r < dtm.getRowCount(); r++){
+							    		  					if(dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+							    		  						dtm.setValueAt(regSalvar, r, 2);
+							    		  					}
+							    		  				}
+							    		  			break;
+							    		  			default:
+							    		  				JOptionPane.showMessageDialog(
+							    		  						Janela.this,
+							    		  						"<html>"
+							    		  						+ "Lamentamos, mas o operador da linha <b style='font-size:9px; color: red;'>"+linhaAtual+"</b> não poderá ser executado.<br>"
+							    		  						+ "O mesmo ainda não foi completamente habilitado.<br>"
+							    		  						+ "<i>Tente utilizá-lo na próxima revisão do sistema.</i>"
+							    		  						+ "</html>",
+							    		  						"Operador não implementado",
+							    		  						JOptionPane.ERROR_MESSAGE);
+							    		  			break;
+							    		  		}
 							    		  		break;
+							    		  		
+							    		  		
+							    		  	// -- TIPO I (JUMP/BRANCH)
 							    		  	case 3:
 							    		  		break;
+							    		  		
+							    		  		
+							    		  	// -- TIPO I (JUMP/BRANCH)
 							    		  	case 4:
 							    		  		break;
+							    		  		
+							    		  		
+							    		  	// -- TIPO I (JUMP/BRANCH)
 							    		  	case 5:
 							    		  		Matcher matcher5 = enderecoTipoI.matcher(linha);
 												if(matcher5.find()) { enderecoOuLabel = matcher5.group().substring(1); }
+												for(int l = 0; l < ArraysLists.arrLabel.size(); l++){
+													if(ArraysLists.arrLabel.get(l).equals(enderecoOuLabel)){
+														while(enderecoOuLabel.length() < 8){
+															enderecoOuLabel += " ";
+														}
+														lblOito = enderecoOuLabel;
+														System.out.println(lblOito);
+													}
+												}
+
 												endLbl = null;
 												end = 0;
 												if(memoria.memoria.containsValue(lblOito)){
 													end = Integer.parseInt(memoria.BuscarEndereco(lblOito, dtmMem), 10)+16;
-													//System.out.println("Salva em: "+memoria.BuscarEndereco(lblOito, dtmMem));
-													//System.out.println("Proxima instrução em: "+end);
 													endLbl = ConversaoBase.converteDecimalParaBinario(end);
 												}
 												while(endLbl.length()<16){
@@ -707,13 +868,15 @@ public class Janela extends JFrame{
 							    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
 							    		  		break;
 							    		  }
+							    		  painelCima.setSelectedComponent(linguagemMaquina);
 							    		  break;
 							    	  }
 							      }
 							    }
 							}
 						}
-					});
+					}
+				});
 					break;
 				// -- Compilar por Step
 				case 4:
@@ -873,11 +1036,11 @@ public class Janela extends JFrame{
 				case 6:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
-							JFrame addValor = new JFrame("Adicionar Valor Ao Registrador");
+							JFrame addValor = new JFrame("Adicionar Valor ao Registrador");
 							addValor.setVisible(true);
-							addValor.setSize(350, 230);
+							addValor.setSize(350, 160);
 							addValor.setResizable(false);
-							addValor.setIconImage(Utilidades.buscarIcone("img/page_white_wrench.png").getImage());
+							addValor.setIconImage(Utilidades.buscarIcone("img/sort_number.png").getImage());
 							addValor.setLocationRelativeTo(null);
 							addValor.requestFocusInWindow();
 							
@@ -896,9 +1059,10 @@ public class Janela extends JFrame{
 							registradores1.setLocation(30, 30);
 							jdpi.add(registradores1);
 							
-							JTextField valor1 = new JTextField();
+							valor1 = new JTextField();
 							valor1.setSize(170,20);
 							valor1.setLocation(140, 30);
+							valor1.setDocument(new JTextFieldLimit(5));
 				            jdpi.add(valor1);
 				            
 				            JLabel lblValor = new JLabel("Valor");
@@ -915,52 +1079,96 @@ public class Janela extends JFrame{
 							registradores2.setLocation(30, 60);
 							jdpi.add(registradores2);
 				            
-							JTextField valor2 = new JTextField();
+							valor2 = new JTextField();
 							valor2.setSize(170,20);
 							valor2.setLocation(140, 60);
+							valor2.setDocument(new JTextFieldLimit(5));
 				            jdpi.add(valor2);
-				            
-				            //caixa 3
-							JComboBox<Registrador> registradores3 = new JComboBox<Registrador>();
-							registradores3.setSize(80, 20);
-							for(int i = 0; i < ArraysLists.registradores.size(); i++){
-								registradores3.addItem(ArraysLists.registradores.get(i));
-							}
-							registradores3.setLocation(30, 90);
-							jdpi.add(registradores3);
 							
-							JTextField valor3 = new JTextField();
-							valor3.setSize(170,20);
-							valor3.setLocation(140, 90);
-				            jdpi.add(valor3);
-				            //caixa 4
-							JComboBox<Registrador> registradores4 = new JComboBox<Registrador>();
-							registradores4.setSize(80, 20);
-							for(int i = 0; i < ArraysLists.registradores.size(); i++){
-								registradores4.addItem(ArraysLists.registradores.get(i));
-							}
-							registradores4.setLocation(30, 120);
-							jdpi.add(registradores4);
-							
-							JTextField valor4 = new JTextField();
-							valor4.setSize(170,20);
-							valor4.setLocation(140, 120);
-				            jdpi.add(valor4);
-							//botao
-							
+				            //botao
 							JButton salve = new JButton("Salvar");
 							salve.setSize(60,30);
-							salve.setLocation(250, 160);
+							salve.setLocation(250, 90);
 							jdpi.add(salve);
 							salve.addActionListener(new ActionListener(){
 
 								@Override
 								public void actionPerformed(ActionEvent e) {
-									
-								}});
+									String valor;
+									if((registradores1.getSelectedItem() == Registrador.$zero) ||
+										(registradores2.getSelectedItem() == Registrador.$zero)){
+										JOptionPane.showMessageDialog(Janela.this,
+												"<html>"
+												+ "Por padrão o registrador <b style='color:red;'>"+Registrador.$zero+"</b> possui um valor fixo e imutável.<br>"
+												+ "<i>Nenhuma alteração será feita caso este esteja selecionado.</i>"
+												+ "</html>",
+												"Atenção!",
+												JOptionPane.WARNING_MESSAGE);
+									} else {
+									if(valor1.getText().equals("") ||
+										valor2.getText().equals("")){
+										String v1 = "<b style='color: #375828;'>Ok</b>",
+											v2 = "<b style='color: #375828;'>Ok</b>";
+										if(valor1.getText().equals("")){v1 = "<b style='color:red;'>Em Branco</b>";}
+										if(valor2.getText().equals("")){v2 = "<b style='color:red;'>Em Branco</b>";}
+											JOptionPane.showMessageDialog(Janela.this,
+													"<html>"
+													+ "Prezado usuário, o sistema não poderá continuar com adição de valores<br>"
+													+ "aos registradores, pois alguns encontram-se em branco:<br><br>"
+													+ "Registrador 1: "+v1+"<br>"
+													+ "Registrador 2: "+v2+"<br><br>"
+													+ "<i>Favor revisar as informações digitadas.</i>"
+													+ "</html>",
+													"Erro na Adição de Valores",
+													JOptionPane.ERROR_MESSAGE);
+									} else {
+									for(int r = 0; r < dtm.getRowCount(); r++){
+				    		  			if(dtm.getValueAt(r, 0).toString().equals(registradores1.getSelectedItem().toString())){
+				    		  				valor = valor1.getText();
+				    		  				Pattern letrasEtc = Pattern.compile("[^\\d]");
+				    		  				Matcher matcher = letrasEtc.matcher(valor);
+				    		  				if(matcher.find()){
+				    		  					JOptionPane.showMessageDialog(Janela.this,
+														"<html>"
+														+ "Nós encontramos caracteres diferentes no valor digitado no campo: <b>"+valor1.getName()+"</b>.<br>"
+														+ "Observe: estamos ignorando todos os valores não-numéricos para processar corretamente.<br>"
+														+ "Cuidado na próxima vez!"
+														+ "</html>",
+														"Atenção!",
+														JOptionPane.WARNING_MESSAGE);
+				    		  				}
+				    		  				valor = valor.replaceAll("[^\\d]", "");
+				    		  				//System.out.println("Achei um: "+registradores1.getSelectedItem());
+				    		  				//System.out.println("Valor:"+Integer.parseInt(valor));
+				    		  				dtm.setValueAt(Integer.parseInt(valor), r, 2);
+				    		  			}
+				    		  			else if(dtm.getValueAt(r, 0).toString().equals(registradores2.getSelectedItem().toString())){
+				    		  				valor = valor2.getText();
+				    		  				Pattern letrasEtc = Pattern.compile("[^\\d]");
+				    		  				Matcher matcher = letrasEtc.matcher(valor);
+				    		  				if(matcher.find()){
+				    		  					JOptionPane.showMessageDialog(Janela.this,
+														"<html>"
+														+ "Nós encontramos caracteres diferentes no valor digitado no campo: <b>"+valor2.getName()+"</b>.<br>"
+														+ "Observe: estamos ignorando todos os valores não-numéricos para processar corretamente.<br>"
+														+ "Cuidado na próxima vez!"
+														+ "</html>",
+														"Atenção!",
+														JOptionPane.WARNING_MESSAGE);
+				    		  				}
+				    		  				valor = valor.replaceAll("[^\\d]", "");
+				    		  				//System.out.println("Achei um: "+registradores2.getSelectedItem());
+				    		  				//System.out.println("Valor:"+Integer.parseInt(valor));
+				    		  				dtm.setValueAt(Integer.parseInt(valor), r, 2);
+				    		  			}
+									}
+				    		  	}
+							}	
+						}});
 						}
 					});
 					break;
+				// -- Dicas
 				case 7:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
