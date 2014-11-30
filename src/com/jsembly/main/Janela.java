@@ -64,6 +64,7 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("serial")
 public class Janela extends JFrame{
+	String lblOito;
 	File temp;
 	ArrayList<Color> cores = new ArrayList<Color>();
 	Configuracoes conf = new Configuracoes();
@@ -224,7 +225,8 @@ public class Janela extends JFrame{
             	// Prepare default color         
             	Color color = table.getForeground();
             	if (column == 0) {
-            			color = new Color(19,102,97);
+            		setFont(getFont().deriveFont(Font.BOLD));
+            			color = new Color(67,116,181);
             			//new Color(160,43,4)
             	}
             	setForeground(color);
@@ -295,10 +297,10 @@ public class Janela extends JFrame{
             		setForeground(new Color(28,89,75));
             	}
             	if (column == 2) {
-            		setForeground(new Color(28,89,75));
+            		setForeground(new Color(206,159,31));
             	}
             	if (column == 3) {
-            		setForeground(new Color(181,30,40));
+            		setForeground(new Color(118,146,153));
             	}
             	setBackground(Color.WHITE);
             	return this;
@@ -511,7 +513,6 @@ public class Janela extends JFrame{
 									try {
 										doc.insertString(n, linha+"\n", null);
 									} catch (BadLocationException e1) {
-										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}
 								}
@@ -555,6 +556,7 @@ public class Janela extends JFrame{
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
 							int linhaAtual = 0;
+							ArraysLists.arrLabel.clear();
 							String lm = "Sem Linguagem de Máquina";
 							Registrador.LimparAtividade(dtm);
 							dtmExec.setRowCount(0);
@@ -575,10 +577,15 @@ public class Janela extends JFrame{
 								Matcher matcherLbl = label.matcher(linha);
 								if(matcherLbl.find()){
 									String lbl = matcherLbl.group().substring(matcherLbl.start(),matcherLbl.end()-1);
-									memoria.AtualizarMemoria(memoria.BuscarMemoria(dtmMem),lbl,dtmMem);
-									if(memoria.memoria.containsValue(lbl)){
-										System.out.println(memoria.BuscarEndereco(lbl, dtmMem));
+									ArraysLists.arrLabel.add(lbl);
+									while(lbl.length() < 8){
+										lbl += " ";
 									}
+									lblOito = lbl;
+									while(lbl.length() < 32){
+										lbl += "0";
+									}
+									memoria.AlocarMemoria(lbl,dtmMem);
 								}
 
 								// Busca de Operadores
@@ -599,18 +606,14 @@ public class Janela extends JFrame{
 							    	  if(matcher.group().toLowerCase().equals(ArraysLists.operadores.get(i).toString())){
 							    		 //System.out.println("Achei um operador: "+ArraysLists.operadores.get(i).toString());
 						    		  	  String enderecoOuLabel = null;
+						    		  	  String endLbl = null;
+						    		  	  int end = 0;
 							    		  switch(ArraysLists.operadores.get(i).getTipoIntrucao()){
 							    		  	case 0:
 							    		  		//System.out.println("Tipo I");
 							    		  		// Busca de Endereços
 							    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
 							    		  		Registrador.AtualizarAtividade(dtm);
-							    		  		if(ArraysLists.operadores.get(i).toString() == "bne" || ArraysLists.operadores.get(i).toString() == "beq"){
-								    		  		Matcher matcher3 = enderecoTipoI.matcher(linha);
-													if(matcher3.find()) { enderecoOuLabel = matcher3.group().substring(1); }
-													lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),enderecoOuLabel);
-								    		  		painelLinguagemMaquina.append(lm+"\n");
-							    		  		} else {
 							    		  			Matcher matcher3 = enderecoTipoI.matcher(linha);
 													if(matcher3.find()) { enderecoOuLabel = matcher3.group().substring(1); }
 							    		  			int decimal = Integer.parseInt(enderecoOuLabel, 10);
@@ -630,15 +633,34 @@ public class Janela extends JFrame{
 								    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+enderecoOuLabel,
 								    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
 							    		  			}
-							    		  		}
 							    		  		break;
 							    		  	
 							    		  	case 1:
 							    		  		//System.out.println("Tipo J");
 							    		  		// Busca de Endereços
 							    		  		Matcher matcher4 = endereco.matcher(linha);
-												if(matcher4.find()) { enderecoOuLabel = matcher4.group().substring(1); }							    		  		
-							    		  		painelLinguagemMaquina.append(TipoInstrucao.InstrucaoTipoJ(ArraysLists.operadores.get(i).getValorBits(),enderecoOuLabel)+"\n");
+												if(matcher4.find()) { enderecoOuLabel = matcher4.group().substring(1); }
+												if(memoria.memoria.containsValue(lblOito)){
+													end = Integer.parseInt(memoria.BuscarEndereco(lblOito, dtmMem), 10)+16;
+													//System.out.println("Salva em: "+memoria.BuscarEndereco(lblOito, dtmMem));
+													//System.out.println("Proxima instrução em: "+end);
+													endLbl = ConversaoBase.converteDecimalParaBinario(end);
+												}
+												while(endLbl.length()<26){
+						    		  				endLbl = "0" + endLbl ;
+						    		  			}
+												String novoEndLbl = ""+end;
+												while(novoEndLbl.length() < 6){
+													novoEndLbl = "0"+novoEndLbl;
+												}
+												lm = TipoInstrucao.InstrucaoTipoJ(ArraysLists.operadores.get(i).getValorBits(),endLbl);
+												memoria.AlocarMemoria(lm, dtmMem);
+												painelLinguagemMaquina.append(lm+"\n");
+												dtmExec.addRow(new Object[]{
+							    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
+							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
+							    		  				ArraysLists.operadores.get(i)+" "+novoEndLbl,
+							    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+enderecoOuLabel});
 							    		  		break;
 							    		  	case 2:
 							    		  		//System.out.println("Tipo R");
@@ -652,6 +674,37 @@ public class Janela extends JFrame{
 							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
 							    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+",$"+ArraysLists.regEncontrados.get(2).getId(),
 							    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+ArraysLists.regEncontrados.get(2).toString()});
+							    		  		break;
+							    		  	case 3:
+							    		  		break;
+							    		  	case 4:
+							    		  		break;
+							    		  	case 5:
+							    		  		Matcher matcher5 = enderecoTipoI.matcher(linha);
+												if(matcher5.find()) { enderecoOuLabel = matcher5.group().substring(1); }
+												endLbl = null;
+												end = 0;
+												if(memoria.memoria.containsValue(lblOito)){
+													end = Integer.parseInt(memoria.BuscarEndereco(lblOito, dtmMem), 10)+16;
+													//System.out.println("Salva em: "+memoria.BuscarEndereco(lblOito, dtmMem));
+													//System.out.println("Proxima instrução em: "+end);
+													endLbl = ConversaoBase.converteDecimalParaBinario(end);
+												}
+												while(endLbl.length()<16){
+						    		  				endLbl = "0" + endLbl ;
+						    		  			}
+												novoEndLbl = ""+end;
+												while(novoEndLbl.length() < 6){
+													novoEndLbl = "0"+novoEndLbl;
+												}
+												lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),endLbl);
+												memoria.AlocarMemoria(lm, dtmMem);
+												painelLinguagemMaquina.append(lm+"\n");
+												dtmExec.addRow(new Object[]{
+							    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
+							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
+							    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+novoEndLbl,
+							    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
 							    		  		break;
 							    		  }
 							    		  break;
@@ -968,7 +1021,6 @@ public class Janela extends JFrame{
 		try {
 			Thread.sleep(1300);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		splJanela.setVisible(false);
