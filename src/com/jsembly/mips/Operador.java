@@ -12,9 +12,9 @@ public enum Operador {
 	//		5 - TIPO I (JUMP/BRANCH)
 	
 	// -- Tipo I
-	addi(2,"001000","Add Immediate",0),
+	addi(2,"001000","Add Immediate",0), // !_IMPLEMENTADO & FUNCIONAL_!
 	addiu(999,"001001","Add Immediate Unsigned",0), /* Falta Implementar */
-	lui(9,"001111","Load Upper Immediate",0),
+	lui(9,"001111","Load Upper Immediate",0), // !_IMPLEMENTADO & FUNCIONAL_!
 	andi(13,"001100","And Immediate",0),
 	ori(14,"001101","Or Immediate",0),
 	xori(999,"001110","Exclusive Or Immediate",0), /* Falta Implementar */
@@ -52,14 +52,14 @@ public enum Operador {
 	// -- Tipo R
 	mfhi(999,"010000","Move From High",2), /* Falta Implementar -- ID Aleatória*/
 	mflo(999,"010010","Move From Low",2), /* Falta Implementar  -- ID Aleatória*/
-	add(0,"100000","Add",2),
-	sub(1,"100010","Substract",2),
-	and(10,"100100","And",2),
-	or(11,"100101","Or",2),
+	add(0,"100000","Add",2), // !_IMPLEMENTADO & FUNCIONAL_!
+	sub(1,"100010","Substract",2), // !_IMPLEMENTADO & FUNCIONAL_!
+	and(10,"100100","And",2), // !_IMPLEMENTADO & FUNCIONAL_!
+	or(11,"100101","Or",2), // !_IMPLEMENTADO & FUNCIONAL_!
 	xor(999,"100110","Exclusive Or",2), /* Falta Implementar */
-	nor(12,"100111","Nor",2),
-	sll(15,"000000","Shift Left Logical",2),
-	srl(16,"000010","Shift Right Logical",2),
+	nor(12,"100111","Nor",2), // !_IMPLEMENTADO & FUNCIONAL_!
+	sll(15,"000000","Shift Left Logical",2), // !_IMPLEMENTADO & FUNCIONAL_!
+	srl(16,"000010","Shift Right Logical",2), // !_IMPLEMENTADO & FUNCIONAL_!
 	sra(999,"000011","Shift Right Arithmetic",2), /* Falta Implementar */
 	sllv(999,"000100","",2), /* Falta Implementar */
 	srlv(999,"000110","",2), /* Falta Implementar */

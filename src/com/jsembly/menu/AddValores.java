@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 
 import com.jsembly.extras.JTextFieldLimit;
 import com.jsembly.extras.Utilidades;
+import com.jsembly.funcoes.BinaryLogic;
 import com.jsembly.funcoes.ConversaoBase;
 import com.jsembly.main.ArraysLists;
 import com.jsembly.main.Janela;
@@ -85,7 +86,7 @@ public class AddValores {
 			public void actionPerformed(ActionEvent e) {
 				for(int i = 0; i < ArraysLists.registradores.size(); i ++){
 					Janela.dtm.setValueAt(ArraysLists.registradores.get(i).getValorInicial(), i, 2);
-					Janela.dtm.setValueAt(ArraysLists.registradores.get(i).getValorBits(), i, 3);
+					Janela.dtm.setValueAt(BinaryLogic.resizeBinary(ArraysLists.registradores.get(i).getValorBits(),32,true), i, 3);
 				}
 				JOptionPane.showMessageDialog(null,
 						"<html>"
@@ -154,6 +155,9 @@ public class AddValores {
 		  				//System.out.println("Achei um: "+registradores1.getSelectedItem());
 		  				//System.out.println("Valor:"+Integer.parseInt(valor));
 		  				Janela.dtm.setValueAt(Integer.parseInt(valor), r, 2);
+		  				Janela.dtm.setValueAt(BinaryLogic.resizeBinary(
+		  						ConversaoBase.converteDecimalParaBinario(Integer.parseInt(valor))
+		  						,32,true), r, 3);
 		  			}
 		  			else if(Janela.dtm.getValueAt(r, 0).toString().equals(registradores2.getSelectedItem().toString())){
 		  				valor = Janela.valor2.getText();
@@ -173,6 +177,9 @@ public class AddValores {
 		  				//System.out.println("Achei um: "+registradores2.getSelectedItem());
 		  				//System.out.println("Valor:"+Integer.parseInt(valor));
 		  				Janela.dtm.setValueAt(Integer.parseInt(valor), r, 2);
+		  				Janela.dtm.setValueAt(BinaryLogic.resizeBinary(
+		  						ConversaoBase.converteDecimalParaBinario(Integer.parseInt(valor))
+		  						,32,true), r, 3);
 		  			}
 				}
 				JOptionPane.showMessageDialog(null,
