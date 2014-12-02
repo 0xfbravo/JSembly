@@ -4,6 +4,10 @@ public class ArithmeticLogicUnit {
 
 	public static int add(int rs, int rt){ int rd = BinaryArithmetic.sum(rs, rt); return rd; }
 	
+	public static int addi(int rs, int rt){ int rd = BinaryArithmetic.sum(rs, rt); return rd; }
+	
+	public static boolean slti(int rs, int C){ boolean rd; if(rs < C){ rd = true;} else { rd = false; } return rd;}
+	
 	public static int sub(int rs, int rt){ int rd = BinaryArithmetic.subtract(rs, rt); return rd; }
 	
 	public static String or(String rs, String rt){ String rd = BinaryLogic.or(rs, rt); return rd; }
@@ -14,28 +18,26 @@ public class ArithmeticLogicUnit {
 	
 	public static String xor(String rs, String rt){ String rd = BinaryLogic.xor(rs, rt); return rd; }
 	
-	public static String sll(String rt, String shamt){	
-		int shamtValue = BinaryLogic.unsignedToInteger(shamt);
-		String base = new String();		
-		base = rt.substring(shamtValue, (rt.length()));		 
+	public static String sll(int rt, int shamtValue){
+		String teste = ConversaoBase.converteDecimalParaBinario(rt);
+		teste = BinaryLogic.resizeBinary(teste, 32, true);
+		String base = teste.substring(shamtValue);
 		while(shamtValue > 0){			 
 			base = base + '0'; 
 			shamtValue--;
-		}		
-		String rd = base;
-		return rd;
+		}	
+		return base;
 	}
 	
-	public static String srl(String rt, String shamt){		
-		int shamtValue = BinaryLogic.unsignedToInteger(shamt);
-		String base = new String();		
-		base = rt.substring(0, (rt.length() - shamtValue));	
+	public static String srl(int rt, int shamtValue){		
+		String teste = ConversaoBase.converteDecimalParaBinario(rt);
+		teste = BinaryLogic.resizeBinary(teste, 32, true);
+		String base = teste.substring(shamtValue,teste.length()-shamtValue);
 		while(shamtValue > 0){			 
-			base = '0' + base; 
+			base = '0'+ base; 
 			shamtValue--;
-		}		
-		String rd = base;
-		return rd;
+		}	
+		return base;
 	}
 	
 	public static int addu(int rs, int rt){ int rd = BinaryArithmetic.sumUnsigned(rs, rt); return rd; }

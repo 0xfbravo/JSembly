@@ -26,8 +26,8 @@ public class Cores {
 	
 	public static void buscarCores(String temp,JTextPane linguagemMIPS){
 	ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp);
+	int c = 0;
 	for(String linhas : linhasLidas){
-		
 		Pattern operador = Pattern.compile("\\b\\w{1,4} [$]|\\b\\w{1,4} \\d",Pattern.CASE_INSENSITIVE);
 		Pattern registrador = Pattern.compile("[$]([a-z][0-9])|[$]([a-z][a-z])", Pattern.CASE_INSENSITIVE);
 		Pattern label = Pattern.compile("\\b\\w+[:]", Pattern.CASE_INSENSITIVE);
@@ -57,7 +57,7 @@ public class Cores {
 			StyleConstants.setBold(corLabel, true);
 			StyleConstants.setForeground(corLabel, new Color(238,84,0));
 			//System.out.println();
-			linguagemMIPS.getStyledDocument().setCharacterAttributes(matcher3.start()-2, matcher3.group().length(), corLabel, true);
+			linguagemMIPS.getStyledDocument().setCharacterAttributes(matcher3.start(), matcher3.group().length(), corLabel, true);
 		}
     
 			// Busca de Comentários

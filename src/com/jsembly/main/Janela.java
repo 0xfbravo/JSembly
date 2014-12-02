@@ -40,15 +40,14 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyledDocument;
 
-import com.jsembly.extras.JTextFieldLimit;
 import com.jsembly.extras.TextLineNumber;
 import com.jsembly.extras.Utilidades;
-import com.jsembly.funcoes.ArithmeticLogicUnit;
 import com.jsembly.funcoes.BinaryArithmetic;
 import com.jsembly.funcoes.BinaryLogic;
-import com.jsembly.funcoes.Configuracoes;
 import com.jsembly.funcoes.ConversaoBase;
 import com.jsembly.funcoes.Cores;
+import com.jsembly.menu.AddValores;
+import com.jsembly.menu.Compilar;
 import com.jsembly.mips.Registrador;
 import com.jsembly.mips.TipoInstrucao;
 
@@ -69,40 +68,46 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("serial")
 public class Janela extends JFrame{
-	BinaryArithmetic binAri = new BinaryArithmetic();
-	String lblOito;
-	File temp;
-	ArrayList<Color> cores = new ArrayList<Color>();
-	Configuracoes conf = new Configuracoes();
-	int linhaAtualStep = 0;
+	public static BinaryArithmetic binAri = new BinaryArithmetic();
+	public static String lblOito;
+	public static File temp;
+	public static ArrayList<Color> cores = new ArrayList<Color>();
+	public static Configuracoes conf = new Configuracoes();
+	public static int linhaAtualStep = 0;
 	Timer alphaChanger;
 	private String titulo;
 	private int altura,largura;
-	JFrame janelaInicial = new JFrame();
-	JWindow splJanela = new JWindow();
-	GridLayout layoutMenu = new GridLayout(0,1);
-	GridLayout layoutCentral = new GridLayout(2,1);
-	GridLayout layoutBaixo = new GridLayout(1,2);
-	JDesktopPane painelMenu = new JDesktopPane();
-	JDesktopPane painelJanela = new JDesktopPane();
 	
-	JTabbedPane painelCima = new JTabbedPane();
-		DefaultStyledDocument documento = new DefaultStyledDocument();
-			JTextPane linguagemMIPS = new JTextPane(documento);
-				StyledDocument doc = linguagemMIPS.getStyledDocument();
-			JTextArea linguagemMaquina = new JTextArea();
-			JTable abaExecutar = new JTable();
-	JDesktopPane painelBaixo = new JDesktopPane();
-		JTabbedPane valoresMIPS = new JTabbedPane();
-		JTabbedPane tblMemoria = new JTabbedPane();
+	public static JFrame janelaInicial = new JFrame();
+	public static JWindow splJanela = new JWindow();
+	public static GridLayout layoutMenu = new GridLayout(0,1);
+	public static GridLayout layoutCentral = new GridLayout(2,1);
+	public static GridLayout layoutBaixo = new GridLayout(1,2);
+	public static JDesktopPane painelMenu = new JDesktopPane();
+	public static JDesktopPane painelJanela = new JDesktopPane();
 	
-	JDesktopPane splPainel = new JDesktopPane();
-	FileNameExtensionFilter filter = new FileNameExtensionFilter("Arquivo Assembly (*.asm)", "asm", "assembly");
+	public static JTabbedPane painelCima = new JTabbedPane();
+	public static 	DefaultStyledDocument documento = new DefaultStyledDocument();
+	public static 		JTextPane linguagemMIPS = new JTextPane(documento);
+	public static 			StyledDocument doc = linguagemMIPS.getStyledDocument();
+	public static 		JTable abaExecutar = new JTable();
+	public static JDesktopPane painelBaixo = new JDesktopPane();
+	public static 	JTabbedPane valoresMIPS = new JTabbedPane();
+	public static 	JTabbedPane tblMemoria = new JTabbedPane();
 	
-	JTextField valor1 = null;
-	JTextField valor2 = null;
-	JTextField valor3 = null;
-	JTextField valor4 = null;
+	public static JDesktopPane splPainel = new JDesktopPane();
+	public static FileNameExtensionFilter filter = new FileNameExtensionFilter("Arquivo Assembly (*.asm)", "asm", "assembly");
+	
+	public static JTextField valor1 = null;
+	public static JTextField valor2 = null;
+	public static JTextField valor3 = null;
+	public static DefaultTableModel dtmExec = new DefaultTableModel(0, 0);
+	public static DefaultTableModel dtmMem = new DefaultTableModel(0, 0);
+	public static DefaultTableModel dtm = new DefaultTableModel(0, 0);
+	
+	public static JTextArea painelLinguagemMaquina = new JTextArea();
+	public static JScrollPane linguagemMIPS_Scroll = new JScrollPane(linguagemMIPS);
+	public static JScrollPane linguagemMaquina = new JScrollPane(painelLinguagemMaquina);
 
 	/*
 	 * Método para criação da Janela Interna
@@ -153,7 +158,14 @@ public class Janela extends JFrame{
 					public void keyReleased(KeyEvent arg0) {
 						try {
 							BufferedWriter bw = new BufferedWriter(new FileWriter(temp));
-							switch (arg0.getKeyCode()){					
+							switch (arg0.getKeyCode()){
+							case KeyEvent.VK_ESCAPE:
+							case KeyEvent.VK_CAPS_LOCK:
+							case KeyEvent.VK_CONTROL:
+							case KeyEvent.VK_TAB:
+							case KeyEvent.VK_ALT:
+							case KeyEvent.VK_SHIFT:	
+							break;
 								default:
 									bw.write(linguagemMIPS.getText());
 									bw.close();
@@ -167,23 +179,19 @@ public class Janela extends JFrame{
 					public void keyTyped(KeyEvent arg0) {}
 				});
 		
-		JScrollPane linguagemMIPS_Scroll = new JScrollPane(linguagemMIPS);
 		TextLineNumber tln = new TextLineNumber(linguagemMIPS);
 		linguagemMIPS_Scroll.setRowHeaderView( tln );
 		linguagemMIPS_Scroll.setPreferredSize(painelCima.getMinimumSize());
 		painelCima.add(linguagemMIPS_Scroll,conf.getLinguagemMIPS());
 		painelCima.setIconAt(0, Utilidades.buscarIcone("img/page_code.png"));
 				
-		JTextArea painelLinguagemMaquina = new JTextArea();
 		painelLinguagemMaquina.setEnabled(false);
-		JScrollPane linguagemMaquina = new JScrollPane(painelLinguagemMaquina);
 		TextLineNumber tln2 = new TextLineNumber(painelLinguagemMaquina);
 		linguagemMaquina.setRowHeaderView( tln2 );
 		linguagemMaquina.setPreferredSize(painelCima.getMinimumSize());
 		painelCima.add(linguagemMaquina,conf.getLinguagemMaquina());
 		painelCima.setIconAt(1, Utilidades.buscarIcone("img/monitor.png"));
 		
-		DefaultTableModel dtmExec = new DefaultTableModel(0, 0);
 		String headerExec[] = new String[] { "Endereço", "Valor Hexadecimal", "Basic", "Código" };
 		dtmExec.setColumnIdentifiers(headerExec);
 		abaExecutar.setModel(dtmExec);
@@ -240,16 +248,14 @@ public class Janela extends JFrame{
             	return this;
             }                                            
 		});
-		DefaultTableModel dtmMem = new DefaultTableModel(0, 0);
+
 		String headerMem[] = new String[] { "Endereços", "Dados" };
 		dtmMem.setColumnIdentifiers(headerMem);
 		listaMem.setModel(dtmMem);
 		listaMem.setEnabled(false);
 		listaMem.getColumnModel().getColumn(0).setHeaderValue("Endereços");
 		listaMem.getColumnModel().getColumn(1).setHeaderValue("Dados");
-		
-		Memoria memoria = new Memoria(10240,dtmMem);
-		
+		new Memoria(10240,dtmMem);
 		JScrollPane spMem = new JScrollPane(listaMem);
 		tblMemoria.add(spMem,conf.getMemoria());
 		tblMemoria.setIconAt(0, Utilidades.buscarIcone("img/timeline_marker.png"));
@@ -307,7 +313,7 @@ public class Janela extends JFrame{
             	return this;
             }                                            
 		});
-		DefaultTableModel dtm = new DefaultTableModel(0, 0);
+		
 		String header[] = new String[] { "Registrador", "ID", "Valor", "Valor Binário", "Atividade" };
 		dtm.setColumnIdentifiers(header);
 		listaReg.setModel(dtm);
@@ -317,18 +323,21 @@ public class Janela extends JFrame{
 		listaReg.getColumnModel().getColumn(1).setHeaderValue("ID");
 		listaReg.getColumnModel().getColumn(1).setMaxWidth(23);
 		listaReg.getColumnModel().getColumn(2).setHeaderValue("Valor");
-		listaReg.getColumnModel().getColumn(2).setMaxWidth(46);
-		listaReg.getColumnModel().getColumn(3).setHeaderValue("Valor Binário");
+		listaReg.getColumnModel().getColumn(2).setMaxWidth(90);
+		listaReg.getColumnModel().getColumn(3).setHeaderValue("Valor Binário (32bits)");
+		listaReg.getColumnModel().getColumn(3).setMaxWidth(230);
+		listaReg.getColumnModel().getColumn(3).setMinWidth(230);
 		listaReg.getColumnModel().getColumn(4).setHeaderValue("Atividade");
 
 		for(int i = 0; i < ArraysLists.registradores.size(); i ++){
 			String atividade = "Inativo";
 			if(ArraysLists.registradores.get(i).isAtivo()){atividade = "Ativo";}
+			String bin32 = BinaryLogic.resizeBinary(ArraysLists.registradores.get(i).getValorBits(),32,true);
 			dtm.addRow(new Object[]{
 					ArraysLists.registradores.get(i).toString(),
 					ArraysLists.registradores.get(i).getId(),
 					ArraysLists.registradores.get(i).getValorInicial(),
-					ArraysLists.registradores.get(i).getValorBits(),
+					bin32,
 					atividade});
 		}
 		JScrollPane spReg = new JScrollPane(listaReg);
@@ -495,7 +504,7 @@ public class Janela extends JFrame{
 									linguagemMIPS.setText("");
 									Registrador.LimparAtividade(dtm);
 									dtmExec.setRowCount(0);
-									memoria.LimparMemoria(dtmMem);
+									Memoria.LimparMemoria(dtmMem);
 									dtmMem.fireTableDataChanged();
 								} catch (IOException e1) {
 									e1.printStackTrace();
@@ -527,7 +536,7 @@ public class Janela extends JFrame{
 								linguagemMIPS.setText("");
 								Registrador.LimparAtividade(dtm);
 								dtmExec.setRowCount(0);
-								memoria.LimparMemoria(dtmMem);
+								Memoria.LimparMemoria(dtmMem);
 								dtmMem.fireTableDataChanged();
 								ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp.getAbsolutePath());
 								for(String linha : linhasLidas){
@@ -537,6 +546,7 @@ public class Janela extends JFrame{
 										e1.printStackTrace();
 									}
 								}
+								Cores.buscarCores(temp.getAbsolutePath(),linguagemMIPS);
 							}
 						}
 					});
@@ -571,7 +581,7 @@ public class Janela extends JFrame{
 								linguagemMIPS.setText("");
 								Registrador.LimparAtividade(dtm);
 								dtmExec.setRowCount(0);
-								memoria.LimparMemoria(dtmMem);
+								Memoria.LimparMemoria(dtmMem);
 								dtmMem.fireTableDataChanged();
 								ArrayList<String> linhasLidas = Utilidades.LerArquivo(arqRenomeado.getAbsolutePath());
 								for(String linha : linhasLidas){
@@ -606,277 +616,8 @@ public class Janela extends JFrame{
 				// -- Compilar
 				case 3:
 					itensMenu.addActionListener(new ActionListener(){
-						public void actionPerformed(ActionEvent e){
-							boolean erro = false;
-							int codigoErro = 0;
-							int linhaAtual = 0;
-							ArraysLists.arrLabel.clear();
-							String lm = "Sem Linguagem de Máquina";
-							Registrador.LimparAtividade(dtm);
-							dtmExec.setRowCount(0);
-							memoria.LimparMemoria(dtmMem);
-							dtmMem.fireTableDataChanged();
-							painelLinguagemMaquina.setText("");
-							
-							ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp.getAbsolutePath());
-							Pattern operador = Pattern.compile("\\w+", Pattern.CASE_INSENSITIVE);
-							Pattern registrador = Pattern.compile("[$]\\w+", Pattern.CASE_INSENSITIVE);
-							Pattern endereco = Pattern.compile(" \\w+|[0-9]|\\,w+|,[0-9]", Pattern.CASE_INSENSITIVE);
-							Pattern enderecoTipoI = Pattern.compile(",\\w+|,[0-9]", Pattern.CASE_INSENSITIVE);
-							Pattern label = Pattern.compile("\\b\\w{1,8}[:]", Pattern.CASE_INSENSITIVE);
-							
-							// Primeiro busca todas as labels do arquivo
-							//  e adiciona elas ao ArrayLIst & à Memória
-							for(String labelLida : linhasLidas){
-								Matcher matcherLbl = label.matcher(labelLida);
-								if(matcherLbl.find() && erro != true){
-									String lbl = matcherLbl.group().substring(matcherLbl.start(),matcherLbl.end()-1);
-									for(int i = 0; i < ArraysLists.arrLabel.size(); i ++){
-										if(ArraysLists.arrLabel.get(i).equals(lbl)){
-											JOptionPane.showMessageDialog(Janela.this,
-												"<html>"
-												+ "Prezado usuário, a label: <b style='color:red;'>"+lbl+"</b> já foi definida anteriormente no sistema.<br>"
-												+ "<i>Favor revisar as informações digitadas.</i>"
-												+ "</html>",
-												"Label duplicada",
-												JOptionPane.ERROR_MESSAGE);
-											ArraysLists.arrLabel.remove(lbl);
-											erro = true;
-											codigoErro = 1;
-										}
-									}
-									ArraysLists.arrLabel.add(lbl);
-								}
-							}
-							// Após encontrar todas a labels definidas
-							//  inicia uma busca por operadores,registradores, etc
-							if(erro){
-								JOptionPane.showMessageDialog(Janela.this,
-										"<html>"
-										+ "Prezado usuário, o sistema não poderá continuar a execução do código,<br>"
-										+ "pois o mesmo apresenta um erro.<br><br>"
-										+ "<b style='color:red;'>Código: "+codigoErro+"</b><br><br>"
-										+ "<i>Favor revisar as informações digitadas ou informar o código ao desenvolvedor.</i>"
-										+ "</html>",
-										"Erro na Compilação",
-										JOptionPane.ERROR_MESSAGE);
-							} else {
-							for(String linha : linhasLidas){
-								linhaAtual++;
-								ArraysLists.regEncontrados.clear();
-								
-								Matcher matcherLbl = label.matcher(linha);
-								if(matcherLbl.find()){
-									String lbl = matcherLbl.group().substring(matcherLbl.start(),matcherLbl.end()-1);
-									while(lbl.length() < 8){
-										lbl += " ";
-									}
-									lblOito = lbl;
-									while(lbl.length() < 32){
-										lbl += "0";
-									}
-									memoria.AlocarMemoria(lbl,dtmMem);
-								}
-								// Busca de Operadores
-							    Matcher matcher = operador.matcher(linha);
-							    if(matcher.find()) {
-								    // Busca de Registradores
-								    Matcher matcher2 = registrador.matcher(linha);
-								    while(matcher2.find()) {
-								      for(int i = 0; i < ArraysLists.registradores.size(); i++){
-								    	  if(matcher2.group().toLowerCase().equals(ArraysLists.registradores.get(i).toString())){
-								    		  ArraysLists.regEncontrados.add(ArraysLists.registradores.get(i));
-								    		  break;
-								    	  }
-								      }
-								    }
-							      for(int i = 0; i < ArraysLists.operadores.size(); i++){
-							    	  if(matcher.group().toLowerCase().equals(ArraysLists.operadores.get(i).toString())){
-							    		  
-						    		  	  String enderecoOuLabel = null;
-						    		  	  String endLbl = null;
-						    		  	  int end = 0;
-							    		  switch(ArraysLists.operadores.get(i).getTipoIntrucao()){
-							    		  
-							    		  	// -- TIPO I
-							    		  	case 0:
-							    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
-							    		  		Registrador.AtualizarAtividade(dtm);
-							    		  			Matcher matcher3 = enderecoTipoI.matcher(linha);
-													if(matcher3.find()) { enderecoOuLabel = matcher3.group().substring(1); }
-							    		  			int decimal = Integer.parseInt(enderecoOuLabel, 10);
-							    		  			String binario = Integer.toBinaryString(decimal);
-							    		  			while(binario.length()<16){
-							    		  				binario = "0" + binario ;
-							    		  			}
-							    		  			lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),binario);
-							    		  			if(lm.length() > 32){
-							    		  				JOptionPane.showMessageDialog(Janela.this,
-							    		  						"<html>"
-							    		  						+ "Overflow na linha: "
-							    		  						+ "<b style='color:red;'>"+linhaAtual+"</b>"
-							    		  						+ "</html>", "Detectado overflow!", JOptionPane.ERROR_MESSAGE);
-							    		  			} else {
-							    		  			memoria.AlocarMemoria(lm, dtmMem);
-							    		  			painelLinguagemMaquina.append(lm+"\n");
-							    		  			dtmExec.addRow(new Object[]{
-								    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
-								    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
-								    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+enderecoOuLabel,
-								    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
-							    		  			}
-							    		  		break;
-							    		  	
-							    		  		
-							    		  	// -- TIPO J
-							    		  	case 1:
-							    		  		Matcher matcher4 = endereco.matcher(linha);
-												if(matcher4.find()) { enderecoOuLabel = matcher4.group().substring(1); }
-												for(int l = 0; l < ArraysLists.arrLabel.size(); l++){
-													if(ArraysLists.arrLabel.get(l).equals(enderecoOuLabel)){
-														while(enderecoOuLabel.length() < 8){
-															enderecoOuLabel += " ";
-														}
-														lblOito = enderecoOuLabel;
-														System.out.println(lblOito);
-													}
-												}
-												if(memoria.memoria.containsValue(lblOito)){
-													end = Integer.parseInt(memoria.BuscarEndereco(lblOito, dtmMem), 10)+16;
-													endLbl = ConversaoBase.converteDecimalParaBinario(end);
-												}
-												while(endLbl.length()<26){
-						    		  				endLbl = "0" + endLbl ;
-						    		  			}
-												String novoEndLbl = ""+end;
-												while(novoEndLbl.length() < 6){
-													novoEndLbl = "0"+novoEndLbl;
-												}
-												lm = TipoInstrucao.InstrucaoTipoJ(ArraysLists.operadores.get(i).getValorBits(),endLbl);
-												memoria.AlocarMemoria(lm, dtmMem);
-												painelLinguagemMaquina.append(lm+"\n");
-												dtmExec.addRow(new Object[]{
-							    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
-							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
-							    		  				ArraysLists.operadores.get(i)+" "+novoEndLbl,
-							    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+enderecoOuLabel});
-							    		  		break;
-							    		  		
-							    		  		
-							    		  	// -- TIPO R
-							    		  	case 2:
-							    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
-							    		  		Registrador.AtualizarAtividade(dtm);
-							    		  		lm = TipoInstrucao.InstrucaoTipoR(ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),ArraysLists.regEncontrados.get(2).getValorBits(),"00000",ArraysLists.operadores.get(i).getValorBits());
-							    		  		memoria.AlocarMemoria(lm, dtmMem);
-							    		  		painelLinguagemMaquina.append(lm+"\n");
-							    		  		dtmExec.addRow(new Object[]{
-							    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
-							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
-							    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+",$"+ArraysLists.regEncontrados.get(2).getId(),
-							    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+ArraysLists.regEncontrados.get(2).toString()});
-
-							    		  		String valorReg2 = null;
-							    		  		String valorReg3 = null;
-							    		  		for(int r = 0; r < dtm.getRowCount(); r++){
-							    		  			if(dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(1).toString())){
-							    		  				valorReg2 = dtm.getValueAt(r, 2).toString();
-							    		  			}
-							    		  			else if(dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(2).toString())){
-							    		  				valorReg3 = dtm.getValueAt(r, 2).toString();
-							    		  			}
-							    		  		}
-							    		  		int regSalvar = 0;
-							    		  		switch(ArraysLists.operadores.get(i).getId()){
-							    		  			// ADD
-							    		  			case 0:
-							    		  				regSalvar = ArithmeticLogicUnit.add(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10));
-							    		  				for(int r = 0; r < dtm.getRowCount(); r++){
-							    		  					if(dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
-							    		  						dtm.setValueAt(regSalvar, r, 2);
-							    		  					}
-							    		  				}
-							    		  			break;
-							    		  			// SUB
-							    		  			case 1:
-							    		  				regSalvar = ArithmeticLogicUnit.sub(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10));
-							    		  				for(int r = 0; r < dtm.getRowCount(); r++){
-							    		  					if(dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
-							    		  						dtm.setValueAt(regSalvar, r, 2);
-							    		  					}
-							    		  				}
-							    		  			break;
-							    		  			default:
-							    		  				JOptionPane.showMessageDialog(
-							    		  						Janela.this,
-							    		  						"<html>"
-							    		  						+ "Lamentamos, mas o operador da linha <b style='font-size:9px; color: red;'>"+linhaAtual+"</b> não poderá ser executado.<br>"
-							    		  						+ "O mesmo ainda não foi completamente habilitado.<br>"
-							    		  						+ "<i>Tente utilizá-lo na próxima revisão do sistema.</i>"
-							    		  						+ "</html>",
-							    		  						"Operador não implementado",
-							    		  						JOptionPane.ERROR_MESSAGE);
-							    		  			break;
-							    		  		}
-							    		  		break;
-							    		  		
-							    		  		
-							    		  	// -- TIPO I (JUMP/BRANCH)
-							    		  	case 3:
-							    		  		break;
-							    		  		
-							    		  		
-							    		  	// -- TIPO I (JUMP/BRANCH)
-							    		  	case 4:
-							    		  		break;
-							    		  		
-							    		  		
-							    		  	// -- TIPO I (JUMP/BRANCH)
-							    		  	case 5:
-							    		  		Matcher matcher5 = enderecoTipoI.matcher(linha);
-												if(matcher5.find()) { enderecoOuLabel = matcher5.group().substring(1); }
-												for(int l = 0; l < ArraysLists.arrLabel.size(); l++){
-													if(ArraysLists.arrLabel.get(l).equals(enderecoOuLabel)){
-														while(enderecoOuLabel.length() < 8){
-															enderecoOuLabel += " ";
-														}
-														lblOito = enderecoOuLabel;
-														System.out.println(lblOito);
-													}
-												}
-
-												endLbl = null;
-												end = 0;
-												if(memoria.memoria.containsValue(lblOito)){
-													end = Integer.parseInt(memoria.BuscarEndereco(lblOito, dtmMem), 10)+16;
-													endLbl = ConversaoBase.converteDecimalParaBinario(end);
-												}
-												while(endLbl.length()<16){
-						    		  				endLbl = "0" + endLbl ;
-						    		  			}
-												novoEndLbl = ""+end;
-												while(novoEndLbl.length() < 6){
-													novoEndLbl = "0"+novoEndLbl;
-												}
-												lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),endLbl);
-												memoria.AlocarMemoria(lm, dtmMem);
-												painelLinguagemMaquina.append(lm+"\n");
-												dtmExec.addRow(new Object[]{
-							    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
-							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
-							    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+novoEndLbl,
-							    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
-							    		  		break;
-							    		  }
-							    		  painelCima.setSelectedComponent(linguagemMaquina);
-							    		  break;
-							    	  }
-							      }
-							    }
-							}
-						}
-					}
-				});
+						public void actionPerformed(ActionEvent e){ new Compilar(); }
+					});
 					break;
 				// -- Compilar por Step
 				case 4:
@@ -899,9 +640,9 @@ public class Janela extends JFrame{
 								Matcher matcherLbl = label.matcher(linha);
 								if(matcherLbl.find()){
 									String lbl = matcherLbl.group().substring(matcherLbl.start(),matcherLbl.end()-1);
-									memoria.AtualizarMemoria(memoria.BuscarMemoria(dtmMem),lbl,dtmMem);
-									if(memoria.memoria.containsValue(lbl)){
-										System.out.println(memoria.BuscarEndereco(lbl, dtmMem));
+									Memoria.AtualizarMemoria(Memoria.BuscarMemoria(dtmMem),lbl,dtmMem);
+									if(Memoria.memoria.containsValue(lbl)){
+										System.out.println(Memoria.BuscarEndereco(lbl, dtmMem));
 									}
 								}
 
@@ -943,10 +684,10 @@ public class Janela extends JFrame{
 							    		  				binario = "0" + binario ;
 							    		  			}
 							    		  			lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),binario);
-							    		  			memoria.AlocarMemoria(lm, dtmMem);
+							    		  			Memoria.AlocarMemoria(lm, dtmMem);
 							    		  			painelLinguagemMaquina.append(lm+"\n");
 							    		  			dtmExec.addRow(new Object[]{
-								    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
+								    		  				Memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
 								    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
 								    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+enderecoOuLabel,
 								    		  				linhaAtualStep+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
@@ -965,10 +706,10 @@ public class Janela extends JFrame{
 							    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
 							    		  		Registrador.AtualizarAtividade(dtm);
 							    		  		lm = TipoInstrucao.InstrucaoTipoR(ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),ArraysLists.regEncontrados.get(2).getValorBits(),"00000",ArraysLists.operadores.get(i).getValorBits());
-							    		  		memoria.AlocarMemoria(lm, dtmMem);
+							    		  		Memoria.AlocarMemoria(lm, dtmMem);
 							    		  		painelLinguagemMaquina.append(lm+"\n");
 							    		  		dtmExec.addRow(new Object[]{
-							    		  				memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
+							    		  				Memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
 							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
 							    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+",$"+ArraysLists.regEncontrados.get(2).getId(),
 							    		  				linhaAtualStep+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+ArraysLists.regEncontrados.get(2).toString()});
@@ -1035,137 +776,7 @@ public class Janela extends JFrame{
 				// -- Adicionar Valores
 				case 6:
 					itensMenu.addActionListener(new ActionListener(){
-						public void actionPerformed(ActionEvent e){
-							JFrame addValor = new JFrame("Adicionar Valor ao Registrador");
-							addValor.setVisible(true);
-							addValor.setSize(350, 160);
-							addValor.setResizable(false);
-							addValor.setIconImage(Utilidades.buscarIcone("img/sort_number.png").getImage());
-							addValor.setLocationRelativeTo(null);
-							addValor.requestFocusInWindow();
-							
-							JDesktopPane jdpi = new JDesktopPane();
-							addValor.add(jdpi);
-							
-							JLabel lblAdicionar = new JLabel("Registrador");
-							lblAdicionar.setSize(170,20);
-							lblAdicionar.setLocation(30, 10);
-							jdpi.add(lblAdicionar);
-							JComboBox<Registrador> registradores1 = new JComboBox<Registrador>();
-							registradores1.setSize(80, 20);
-							for(int i = 0; i < ArraysLists.registradores.size(); i++){
-								registradores1.addItem(ArraysLists.registradores.get(i));
-							}
-							registradores1.setLocation(30, 30);
-							jdpi.add(registradores1);
-							
-							valor1 = new JTextField();
-							valor1.setSize(170,20);
-							valor1.setLocation(140, 30);
-							valor1.setDocument(new JTextFieldLimit(5));
-				            jdpi.add(valor1);
-				            
-				            JLabel lblValor = new JLabel("Valor");
-				            lblValor.setSize(170, 20);
-				            lblValor.setLocation(140, 10);
-				            jdpi.add(lblValor);
-							
-				            //caixa 2
-				            JComboBox<Registrador> registradores2 = new JComboBox<Registrador>();
-							registradores2.setSize(80, 20);
-							for(int i = 0; i < ArraysLists.registradores.size(); i++){
-								registradores2.addItem(ArraysLists.registradores.get(i));
-							}
-							registradores2.setLocation(30, 60);
-							jdpi.add(registradores2);
-				            
-							valor2 = new JTextField();
-							valor2.setSize(170,20);
-							valor2.setLocation(140, 60);
-							valor2.setDocument(new JTextFieldLimit(5));
-				            jdpi.add(valor2);
-							
-				            //botao
-							JButton salve = new JButton("Salvar");
-							salve.setSize(60,30);
-							salve.setLocation(250, 90);
-							jdpi.add(salve);
-							salve.addActionListener(new ActionListener(){
-
-								@Override
-								public void actionPerformed(ActionEvent e) {
-									String valor;
-									if((registradores1.getSelectedItem() == Registrador.$zero) ||
-										(registradores2.getSelectedItem() == Registrador.$zero)){
-										JOptionPane.showMessageDialog(Janela.this,
-												"<html>"
-												+ "Por padrão o registrador <b style='color:red;'>"+Registrador.$zero+"</b> possui um valor fixo e imutável.<br>"
-												+ "<i>Nenhuma alteração será feita caso este esteja selecionado.</i>"
-												+ "</html>",
-												"Atenção!",
-												JOptionPane.WARNING_MESSAGE);
-									} else {
-									if(valor1.getText().equals("") ||
-										valor2.getText().equals("")){
-										String v1 = "<b style='color: #375828;'>Ok</b>",
-											v2 = "<b style='color: #375828;'>Ok</b>";
-										if(valor1.getText().equals("")){v1 = "<b style='color:red;'>Em Branco</b>";}
-										if(valor2.getText().equals("")){v2 = "<b style='color:red;'>Em Branco</b>";}
-											JOptionPane.showMessageDialog(Janela.this,
-													"<html>"
-													+ "Prezado usuário, o sistema não poderá continuar com adição de valores<br>"
-													+ "aos registradores, pois alguns encontram-se em branco:<br><br>"
-													+ "Registrador 1: "+v1+"<br>"
-													+ "Registrador 2: "+v2+"<br><br>"
-													+ "<i>Favor revisar as informações digitadas.</i>"
-													+ "</html>",
-													"Erro na Adição de Valores",
-													JOptionPane.ERROR_MESSAGE);
-									} else {
-									for(int r = 0; r < dtm.getRowCount(); r++){
-				    		  			if(dtm.getValueAt(r, 0).toString().equals(registradores1.getSelectedItem().toString())){
-				    		  				valor = valor1.getText();
-				    		  				Pattern letrasEtc = Pattern.compile("[^\\d]");
-				    		  				Matcher matcher = letrasEtc.matcher(valor);
-				    		  				if(matcher.find()){
-				    		  					JOptionPane.showMessageDialog(Janela.this,
-														"<html>"
-														+ "Nós encontramos caracteres diferentes no valor digitado no campo: <b>"+valor1.getName()+"</b>.<br>"
-														+ "Observe: estamos ignorando todos os valores não-numéricos para processar corretamente.<br>"
-														+ "Cuidado na próxima vez!"
-														+ "</html>",
-														"Atenção!",
-														JOptionPane.WARNING_MESSAGE);
-				    		  				}
-				    		  				valor = valor.replaceAll("[^\\d]", "");
-				    		  				//System.out.println("Achei um: "+registradores1.getSelectedItem());
-				    		  				//System.out.println("Valor:"+Integer.parseInt(valor));
-				    		  				dtm.setValueAt(Integer.parseInt(valor), r, 2);
-				    		  			}
-				    		  			else if(dtm.getValueAt(r, 0).toString().equals(registradores2.getSelectedItem().toString())){
-				    		  				valor = valor2.getText();
-				    		  				Pattern letrasEtc = Pattern.compile("[^\\d]");
-				    		  				Matcher matcher = letrasEtc.matcher(valor);
-				    		  				if(matcher.find()){
-				    		  					JOptionPane.showMessageDialog(Janela.this,
-														"<html>"
-														+ "Nós encontramos caracteres diferentes no valor digitado no campo: <b>"+valor2.getName()+"</b>.<br>"
-														+ "Observe: estamos ignorando todos os valores não-numéricos para processar corretamente.<br>"
-														+ "Cuidado na próxima vez!"
-														+ "</html>",
-														"Atenção!",
-														JOptionPane.WARNING_MESSAGE);
-				    		  				}
-				    		  				valor = valor.replaceAll("[^\\d]", "");
-				    		  				//System.out.println("Achei um: "+registradores2.getSelectedItem());
-				    		  				//System.out.println("Valor:"+Integer.parseInt(valor));
-				    		  				dtm.setValueAt(Integer.parseInt(valor), r, 2);
-				    		  			}
-									}
-				    		  	}
-							}	
-						}});
-						}
+						public void actionPerformed(ActionEvent e){ new AddValores(); }
 					});
 					break;
 				// -- Dicas

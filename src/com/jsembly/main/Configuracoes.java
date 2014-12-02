@@ -1,4 +1,4 @@
-package com.jsembly.funcoes;
+package com.jsembly.main;
 
 public class Configuracoes {
 	private String linguagemMIPS = "Linguagem MIPS",

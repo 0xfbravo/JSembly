@@ -9,9 +9,9 @@ public enum Registrador {
 	//  exemplo: $s0(id,valorInicial,valorBits,tipoRegistrador,preservadoChamadas,ativo)
 	
 	// AINDA FALTAM INFORMAÇÕES
-	pc(999,0,"[ Faltam informações ]","[ Faltam informações ]",false,false),
-	hi(999,0,"[ Faltam informações ]","[ Faltam informações ]",false,false),
-	lo(999,0,"[ Faltam informações ]","[ Faltam informações ]",false,false),
+	pc(999,0,"","",false,false),
+	hi(999,0,"","",false,false),
+	lo(999,0,"","",false,false),
 	
 	// --- Constante Zero (0)
 	$zero(0,0,"00000","Constante Zero",false,false),

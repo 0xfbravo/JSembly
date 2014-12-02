@@ -6,7 +6,7 @@ import javax.swing.table.DefaultTableModel;
 
 public class Memoria {
 
-	HashMap<String,String> memoria = new HashMap<String,String>();
+	public static HashMap<String,String> memoria = new HashMap<String,String>();
 	public Memoria(int memMax, DefaultTableModel dtm){
 		/*
 		 * Valores em HEXA
@@ -21,15 +21,15 @@ public class Memoria {
 			else { this.AtualizarMemoria(""+i, "0x"+ConversaoBase.converteBinarioParaHexadecimal(""), dtm);  }
 		}*/
 		for(int i = 0; i < memMax; i +=4){
-			if(i<10){ this.AtualizarMemoria("00000"+i, "", dtm); }
-			else if(100 > i && i >= 10){ this.AtualizarMemoria("0000"+i, "", dtm); }
-			else if(1000 > i && i >= 100){ this.AtualizarMemoria("000"+i, "", dtm); }
-			else if(10000 > i && i >= 1000){ this.AtualizarMemoria("00"+i, "", dtm);  }
-			else if(100000 > i && i >= 10000){ this.AtualizarMemoria("0"+i, "", dtm); }
-			else { this.AtualizarMemoria(""+i, "", dtm);  }
+			if(i<10){ Memoria.AtualizarMemoria("00000"+i, "", dtm); }
+			else if(100 > i && i >= 10){ Memoria.AtualizarMemoria("0000"+i, "", dtm); }
+			else if(1000 > i && i >= 100){ Memoria.AtualizarMemoria("000"+i, "", dtm); }
+			else if(10000 > i && i >= 1000){ Memoria.AtualizarMemoria("00"+i, "", dtm);  }
+			else if(100000 > i && i >= 10000){ Memoria.AtualizarMemoria("0"+i, "", dtm); }
+			else { Memoria.AtualizarMemoria(""+i, "", dtm);  }
 		}
 	}
-	public void AtualizarMemoria(String key, String valor,DefaultTableModel dtm){
+	public static void AtualizarMemoria(String key, String valor,DefaultTableModel dtm){
 		if(memoria.containsKey(key)){
 			//System.out.println("Key: "+ key);
 			//System.out.println("Valor Hashmap: "+ memoria.get(key));
@@ -50,7 +50,7 @@ public class Memoria {
 			//System.out.println(key+","+valor);
 		}
 	}
-	public void LimparMemoria(DefaultTableModel dtm){
+	public static void LimparMemoria(DefaultTableModel dtm){
 		for(int i = 0; i < dtm.getRowCount(); i++){
 			if(dtm.getValueAt(i, 1).equals("") == false){
 				memoria.put(dtm.getValueAt(i,0).toString(), "");
@@ -59,7 +59,7 @@ public class Memoria {
 			}
 		}
 	}
-	public String BuscarMemoria(DefaultTableModel dtm){
+	public static String BuscarMemoria(DefaultTableModel dtm){
 		String key = "Sem Memória";
 		int i = 0;
 		while(i < dtm.getRowCount()){
@@ -72,7 +72,7 @@ public class Memoria {
 		}
 		return key;
 	}
-	public String BuscarEndereco(String valor,DefaultTableModel dtm){
+	public static String BuscarEndereco(String valor,DefaultTableModel dtm){
 		String key = "Sem Endereço";
 		int i = 0;
 		while(i < dtm.getRowCount()){
@@ -85,7 +85,7 @@ public class Memoria {
 		return key;
 	}
 	
-	public void AlocarMemoria(String lm,DefaultTableModel dtm){
+	public static void AlocarMemoria(String lm,DefaultTableModel dtm){
 		//System.out.println(lm.substring(0, 8));
 		//System.out.println(lm.substring(8, 16));
 		//System.out.println(lm.substring(16, 24));

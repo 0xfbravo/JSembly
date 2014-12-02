@@ -37,7 +37,7 @@ public class IntTextField extends JTextField {
 	      return 0;
 	    }
 	  }
-	  @SuppressWarnings("serial")
+	  
 	class IntTextDocument extends PlainDocument implements Document {
 	    public void insertString(int offs, String str, AttributeSet a)
 	        throws BadLocationException {
