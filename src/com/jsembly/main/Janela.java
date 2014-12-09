@@ -47,7 +47,7 @@ import com.jsembly.funcoes.BinaryLogic;
 import com.jsembly.funcoes.ConversaoBase;
 import com.jsembly.funcoes.Cores;
 import com.jsembly.menu.AddValores;
-import com.jsembly.menu.Compilar;
+import com.jsembly.menu.Montar;
 import com.jsembly.mips.Registrador;
 import com.jsembly.mips.TipoInstrucao;
 
@@ -163,8 +163,7 @@ public class Janela extends JFrame{
 							case KeyEvent.VK_CAPS_LOCK:
 							case KeyEvent.VK_CONTROL:
 							case KeyEvent.VK_TAB:
-							case KeyEvent.VK_ALT:
-							case KeyEvent.VK_SHIFT:	
+							case KeyEvent.VK_ALT:	
 							break;
 								default:
 									bw.write(linguagemMIPS.getText());
@@ -262,6 +261,22 @@ public class Janela extends JFrame{
 		
 		// -- Tabela de Registradores
 		JTable listaReg = new JTable(){
+			@Override
+			public boolean isCellEditable(int row, int col) {
+			     switch (col) {
+			         case 2:
+			        	 switch(row){
+			        	 	case 0:
+			        	 	case 1:
+			        	 	case 2:
+			        	 	case 3:
+			        	 	return false;
+			        	 }
+			             return true;
+			         default:
+			             return false;
+			      }
+			}
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
 			{
 				Component c = super.prepareRenderer(renderer, row, column);
@@ -317,7 +332,6 @@ public class Janela extends JFrame{
 		String header[] = new String[] { "Registrador", "ID", "Valor", "Valor Binário", "Atividade" };
 		dtm.setColumnIdentifiers(header);
 		listaReg.setModel(dtm);
-		listaReg.setEnabled(false);
 		listaReg.getColumnModel().getColumn(0).setHeaderValue("Registrador");
 		listaReg.getColumnModel().getColumn(0).setMaxWidth(63);
 		listaReg.getColumnModel().getColumn(1).setHeaderValue("ID");
@@ -332,7 +346,9 @@ public class Janela extends JFrame{
 		for(int i = 0; i < ArraysLists.registradores.size(); i ++){
 			String atividade = "Inativo";
 			if(ArraysLists.registradores.get(i).isAtivo()){atividade = "Ativo";}
-			String bin32 = BinaryLogic.resizeBinary(ArraysLists.registradores.get(i).getValorBits(),32,true);
+			String bin32 = BinaryLogic.resizeBinary(
+					ConversaoBase.converteDecimalParaBinario(
+							ArraysLists.registradores.get(i).getValorInicial()),32,true);
 			dtm.addRow(new Object[]{
 					ArraysLists.registradores.get(i).toString(),
 					ArraysLists.registradores.get(i).getId(),
@@ -616,7 +632,7 @@ public class Janela extends JFrame{
 				// -- Compilar
 				case 3:
 					itensMenu.addActionListener(new ActionListener(){
-						public void actionPerformed(ActionEvent e){ new Compilar(); }
+						public void actionPerformed(ActionEvent e){ new Montar(); }
 					});
 					break;
 				// -- Compilar por Step

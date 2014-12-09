@@ -16,16 +16,18 @@ import com.jsembly.main.Memoria;
 import com.jsembly.mips.Registrador;
 import com.jsembly.mips.TipoInstrucao;
 
-public class Compilar {
+public class Montar {
 
-	public Compilar(){
+	public Montar(){
+		String lblAddress = "";
+		String novoEndLbl = "";
 		boolean erro = false;
 		int codigoErro = 0;
 		int linhaAtual = 0;
 		int regSalvar = 0;
 		String valorReg = null;
 		int decimal;
-			String binario = null;
+		String binario = null;
 		ArraysLists.arrLabel.clear();
 		String lm = "Sem Linguagem de Máquina";
 		Registrador.LimparAtividade(Janela.dtm);
@@ -42,7 +44,7 @@ public class Compilar {
 		Pattern label = Pattern.compile("\\b\\w{1,8}[:]", Pattern.CASE_INSENSITIVE);
 		
 		// Primeiro busca todas as labels do arquivo
-		//  e adiciona elas ao ArrayLIst & à Memória
+		//  e adiciona elas ao ArrayList & à Memória
 		for(String labelLida : linhasLidas){
 			Matcher matcherLbl = label.matcher(labelLida);
 			if(matcherLbl.find() && erro != true){
@@ -81,18 +83,6 @@ public class Compilar {
 			linhaAtual++;
 			ArraysLists.regEncontrados.clear();
 			
-			Matcher matcherLbl = label.matcher(linha);
-			if(matcherLbl.find()){
-				String lbl = matcherLbl.group().substring(matcherLbl.start(),matcherLbl.end()-1);
-				while(lbl.length() < 8){
-					lbl += " ";
-				}
-				Janela.lblOito = lbl;
-				while(lbl.length() < 32){
-					lbl += "0";
-				}
-				Memoria.AlocarMemoria(lbl,Janela.dtmMem);
-			}
 			// Busca de Operadores
 		    Matcher matcher = operador.matcher(linha);
 		    if(matcher.find()) {
@@ -111,7 +101,6 @@ public class Compilar {
 		    		  
 	    		  	  String enderecoOuLabel = null;
 	    		  	  String endLbl = null;
-	    		  	  int end = 0;
 	    		  	  if(ArraysLists.operadores.get(i).getId() >= 999){
     		  				JOptionPane.showMessageDialog(
     		  						null,
@@ -129,6 +118,16 @@ public class Compilar {
 		    		  
 		    		  	// -- TIPO I
 		    		  	case 0:
+		    		  		if(ArraysLists.regEncontrados.get(0).equals(Registrador.$zero)){
+		    		  			JOptionPane.showMessageDialog(null,
+		    							"<html>"
+		    							+ "Por padrão o registrador <b style='color:red;'>"+Registrador.$zero+"</b> possui um valor fixo e imutável.<br>"
+		    							+ "<i>Linha de código ignorada!</i>"
+		    							+ "</html>",
+		    							"Atenção!",
+		    							JOptionPane.WARNING_MESSAGE);
+		    		  			break;
+		    		  		}
 		    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
 		    		  		Registrador.AtualizarAtividade(Janela.dtm);
 		    		  			Matcher matcher3 = enderecoTipoI.matcher(linha);
@@ -246,25 +245,12 @@ public class Compilar {
 							if(matcher4.find()) { enderecoOuLabel = matcher4.group().substring(1); }
 							for(int l = 0; l < ArraysLists.arrLabel.size(); l++){
 								if(ArraysLists.arrLabel.get(l).equals(enderecoOuLabel)){
-									while(enderecoOuLabel.length() < 8){
-										enderecoOuLabel += " ";
-									}
-									Janela.lblOito = enderecoOuLabel;
-									System.out.println(Janela.lblOito);
+									lblAddress = ArraysLists.labelAddress.get(l).toString();
+									novoEndLbl = BinaryLogic.resizeBinary(ArraysLists.labelAddress.get(l).toString(),26,true);
 								}
 							}
-							if(Memoria.memoria.containsValue(Janela.lblOito)){
-								end = Integer.parseInt(Memoria.BuscarEndereco(Janela.lblOito, Janela.dtmMem), 10)+16;
-								endLbl = ConversaoBase.converteDecimalParaBinario(end);
-							}
-							while(endLbl.length()<26){
-	    		  				endLbl = "0" + endLbl ;
-	    		  			}
-							String novoEndLbl = ""+end;
-							while(novoEndLbl.length() < 6){
-								novoEndLbl = "0"+novoEndLbl;
-							}
-							lm = TipoInstrucao.InstrucaoTipoJ(ArraysLists.operadores.get(i).getValorBits(),endLbl);
+							lm = TipoInstrucao.InstrucaoTipoJ(ArraysLists.operadores.get(i).getValorBits(),novoEndLbl);
+							System.out.println(lm);
 							if(BinaryLogic.chkOverflow(lm, linhaAtual,ArraysLists.operadores.get(i),binario)) break;
 		  					if(BinaryLogic.chkUnderflow(lm, linhaAtual,ArraysLists.operadores.get(i),binario)) break;
 							Memoria.AlocarMemoria(lm, Janela.dtmMem);
@@ -272,7 +258,7 @@ public class Compilar {
 							Janela.dtmExec.addRow(new Object[]{
 		    		  				Memoria.BuscarEndereco(lm.substring(0, 8), Janela.dtmMem),
 		    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
-		    		  				ArraysLists.operadores.get(i)+" "+novoEndLbl,
+		    		  				ArraysLists.operadores.get(i)+" "+lblAddress,
 		    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+enderecoOuLabel});
 		    		  		break;
 		    		  		
@@ -488,22 +474,7 @@ public class Compilar {
 							if(ArraysLists.arrLabel.size() != 0){
 							for(int l = 0; l < ArraysLists.arrLabel.size(); l++){
 								if(ArraysLists.arrLabel.get(l).equals(enderecoOuLabel)){
-									while(enderecoOuLabel.length() < 8){
-										enderecoOuLabel += " ";
-									}
-									Janela.lblOito = enderecoOuLabel;
-
-									if(Memoria.memoria.containsValue(Janela.lblOito)){
-										end = Integer.parseInt(Memoria.BuscarEndereco(Janela.lblOito, Janela.dtmMem), 10)+16;
-										endLbl = ConversaoBase.converteDecimalParaBinario(end);
-									}
-									while(endLbl.length()<16){
-			    		  				endLbl = "0" + endLbl ;
-			    		  			}
-									novoEndLbl = ""+end;
-									while(novoEndLbl.length() < 6){
-										novoEndLbl = "0"+novoEndLbl;
-									}
+									novoEndLbl = ArraysLists.labelAddress.get(l).toString();
 									lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),endLbl);
 									Memoria.AlocarMemoria(lm, Janela.dtmMem);
 									Janela.painelLinguagemMaquina.append(lm+"\n");
@@ -539,6 +510,13 @@ public class Compilar {
 							}
 		    		  		break;
 		    		  }
+		  			if(linhaAtual > 1){
+						//System.out.println(linhasLidas.get(linhaAtual-2));
+						Matcher matcherLbl = label.matcher(linhasLidas.get(linhaAtual-2));
+						if(matcherLbl.find()){
+							ArraysLists.labelAddress.add(Memoria.BuscarEndereco(lm.substring(0, 8), Janela.dtmMem));
+						}
+		  			}
 		    		  Janela.painelCima.setSelectedComponent(Janela.linguagemMaquina);
 		    		  break;
 		    	  }

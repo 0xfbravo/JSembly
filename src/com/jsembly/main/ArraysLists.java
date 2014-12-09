@@ -13,6 +13,7 @@ public class ArraysLists {
     public static ArrayList<Registrador> regEncontrados = new ArrayList<Registrador>();
     public static ArrayList<Registrador> regAtivos = new ArrayList<Registrador>();
     public static ArrayList<String> arrLabel  = new ArrayList<String>();
+    public static ArrayList<String> labelAddress  = new ArrayList<String>();
     
     public static ArrayList<ItensMenu> itensMenuLista = new ArrayList<ItensMenu>(EnumSet.allOf(ItensMenu.class));
 }

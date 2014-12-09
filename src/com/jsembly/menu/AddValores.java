@@ -86,7 +86,9 @@ public class AddValores {
 			public void actionPerformed(ActionEvent e) {
 				for(int i = 0; i < ArraysLists.registradores.size(); i ++){
 					Janela.dtm.setValueAt(ArraysLists.registradores.get(i).getValorInicial(), i, 2);
-					Janela.dtm.setValueAt(BinaryLogic.resizeBinary(ArraysLists.registradores.get(i).getValorBits(),32,true), i, 3);
+					Janela.dtm.setValueAt(BinaryLogic.resizeBinary(
+							ConversaoBase.converteDecimalParaBinario(
+									ArraysLists.registradores.get(i).getValorInicial()),32,true), i, 3);
 				}
 				JOptionPane.showMessageDialog(null,
 						"<html>"
