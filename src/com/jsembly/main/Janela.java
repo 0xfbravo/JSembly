@@ -47,9 +47,9 @@ import com.jsembly.funcoes.BinaryLogic;
 import com.jsembly.funcoes.ConversaoBase;
 import com.jsembly.funcoes.Cores;
 import com.jsembly.menu.AddValores;
-import com.jsembly.menu.Montar;
+import com.jsembly.menu.Montador;
+import com.jsembly.mips.Operador;
 import com.jsembly.mips.Registrador;
-import com.jsembly.mips.TipoInstrucao;
 
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
@@ -63,8 +63,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @SuppressWarnings("serial")
 public class Janela extends JFrame{
@@ -632,112 +630,12 @@ public class Janela extends JFrame{
 				// -- Compilar
 				case 3:
 					itensMenu.addActionListener(new ActionListener(){
-						public void actionPerformed(ActionEvent e){ new Montar(); }
+						public void actionPerformed(ActionEvent e){ new Montador(); }
 					});
 					break;
 				// -- Compilar por Step
 				case 4:
 					itensMenu.setEnabled(false);
-					itensMenu.addActionListener(new ActionListener(){
-						public void actionPerformed(ActionEvent e){
-							String lm = "Sem Linguagem de Máquina";
-							painelCima.setSelectedComponent(linguagemMaquina);
-							ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp.getAbsolutePath());
-							// Busca por linhas, no arquivo
-							for(String linha : linhasLidas){
-								linhaAtualStep++;
-								ArraysLists.regEncontrados.clear();
-								Pattern operador = Pattern.compile("\\w+", Pattern.CASE_INSENSITIVE);
-								Pattern registrador = Pattern.compile("[$]\\w+", Pattern.CASE_INSENSITIVE);
-								Pattern endereco = Pattern.compile(" \\w+|[0-9]|\\,w+|,[0-9]", Pattern.CASE_INSENSITIVE);
-								Pattern enderecoTipoI = Pattern.compile(",\\w+|,[0-9]", Pattern.CASE_INSENSITIVE);
-								Pattern label = Pattern.compile("\\b\\w{1,8}[:]", Pattern.CASE_INSENSITIVE);
-								
-								Matcher matcherLbl = label.matcher(linha);
-								if(matcherLbl.find()){
-									String lbl = matcherLbl.group().substring(matcherLbl.start(),matcherLbl.end()-1);
-									Memoria.AtualizarMemoria(Memoria.BuscarMemoria(dtmMem),lbl,dtmMem);
-									if(Memoria.memoria.containsValue(lbl)){
-										System.out.println(Memoria.BuscarEndereco(lbl, dtmMem));
-									}
-								}
-
-								// Busca de Operadores
-							    Matcher matcher = operador.matcher(linha);
-							    if(matcher.find()) {
-								    // Busca de Registradores
-								    Matcher matcher2 = registrador.matcher(linha);
-								    while(matcher2.find()) {
-								      for(int i = 0; i < ArraysLists.registradores.size(); i++){
-								    	  if(matcher2.group().toLowerCase().equals(ArraysLists.registradores.get(i).toString())){
-								    		  //System.out.println("Achei um registrador: "+registradores.get(i).toString());
-								    		  ArraysLists.regEncontrados.add(ArraysLists.registradores.get(i));
-								    		  break;
-								    	  }
-								      }
-								    }
-							      for(int i = 0; i < ArraysLists.operadores.size(); i++){
-							    	  if(matcher.group().toLowerCase().equals(ArraysLists.operadores.get(i).toString())){
-							    		 //System.out.println("Achei um operador: "+ArraysLists.operadores.get(i).toString());
-						    		  	  String enderecoOuLabel = null;
-							    		  switch(ArraysLists.operadores.get(i).getTipoIntrucao()){
-							    		  	case 0:
-							    		  		//System.out.println("Tipo I");
-							    		  		// Busca de Endereços
-							    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
-							    		  		Registrador.AtualizarAtividade(dtm);
-							    		  		if(ArraysLists.operadores.get(i).toString() == "bne" || ArraysLists.operadores.get(i).toString() == "beq"){
-								    		  		Matcher matcher3 = enderecoTipoI.matcher(linha);
-													if(matcher3.find()) { enderecoOuLabel = matcher3.group().substring(1); }
-													lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),enderecoOuLabel);
-								    		  		painelLinguagemMaquina.append(lm+"\n");
-							    		  		} else {
-							    		  			Matcher matcher3 = enderecoTipoI.matcher(linha);
-													if(matcher3.find()) { enderecoOuLabel = matcher3.group().substring(1); }
-							    		  			int decimal = Integer.parseInt(enderecoOuLabel, 10);
-							    		  			String binario = Integer.toBinaryString(decimal);
-							    		  			while(binario.length()<16){
-							    		  				binario = "0" + binario ;
-							    		  			}
-							    		  			lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),binario);
-							    		  			Memoria.AlocarMemoria(lm, dtmMem);
-							    		  			painelLinguagemMaquina.append(lm+"\n");
-							    		  			dtmExec.addRow(new Object[]{
-								    		  				Memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
-								    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
-								    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+enderecoOuLabel,
-								    		  				linhaAtualStep+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
-							    		  		}
-							    		  		break;
-							    		  	
-							    		  	case 1:
-							    		  		//System.out.println("Tipo J");
-							    		  		// Busca de Endereços
-							    		  		Matcher matcher4 = endereco.matcher(linha);
-												if(matcher4.find()) { enderecoOuLabel = matcher4.group().substring(1); }							    		  		
-							    		  		painelLinguagemMaquina.append(TipoInstrucao.InstrucaoTipoJ(ArraysLists.operadores.get(i).getValorBits(),enderecoOuLabel)+"\n");
-							    		  		break;
-							    		  	case 2:
-							    		  		//System.out.println("Tipo R");
-							    		  		ArraysLists.regEncontrados.get(0).setAtivo(true);
-							    		  		Registrador.AtualizarAtividade(dtm);
-							    		  		lm = TipoInstrucao.InstrucaoTipoR(ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),ArraysLists.regEncontrados.get(2).getValorBits(),"00000",ArraysLists.operadores.get(i).getValorBits());
-							    		  		Memoria.AlocarMemoria(lm, dtmMem);
-							    		  		painelLinguagemMaquina.append(lm+"\n");
-							    		  		dtmExec.addRow(new Object[]{
-							    		  				Memoria.BuscarEndereco(lm.substring(0, 8), dtmMem),
-							    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
-							    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+",$"+ArraysLists.regEncontrados.get(2).getId(),
-							    		  				linhaAtualStep+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+ArraysLists.regEncontrados.get(2).toString()});
-							    		  		break;
-							    		  }
-							    		  break;
-							    	  }
-							      }
-							    }
-							}
-						}
-					});
 					break;
 					
 				// -- Configurações
@@ -795,10 +693,83 @@ public class Janela extends JFrame{
 						public void actionPerformed(ActionEvent e){ new AddValores(); }
 					});
 					break;
-				// -- Dicas
+				// -- Dicas//linhas novas
 				case 7:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
+							JFrame janelaDicas = new JFrame("Dicas");
+							janelaDicas.setVisible(true);
+							janelaDicas.setSize(350, 200);
+							janelaDicas.setIconImage(Utilidades.buscarIcone("img/page_white_wrench.png").getImage());
+							janelaDicas.setLocationRelativeTo(null);
+							janelaDicas.requestFocusInWindow();
+							
+							JDesktopPane dica = new JDesktopPane();
+							janelaDicas.add(dica);
+							
+							JLabel lbldica = new JLabel("Descrição:");
+							lbldica.setSize(170,20);
+							lbldica.setLocation(30, 10);
+							dica.add(lbldica);
+							
+							JComboBox<Operador> operadores = new JComboBox<Operador>();
+							operadores.setSize(80, 20);
+							for(int i = 0; i < ArraysLists.operadores.size(); i++){
+								operadores.addItem(ArraysLists.operadores.get(i));
+							}
+							operadores.setLocation(30, 40);
+							dica.add(operadores);
+							
+							JButton escolher = new JButton("OK");
+							escolher.setSize(60,20);
+							escolher.setLocation(130, 40);
+							dica.add(escolher);
+							
+							JLabel lblNomeCompleto = new JLabel();
+							lblNomeCompleto.setSize(200,20);
+							lblNomeCompleto.setLocation(30, 70);
+							dica.add(lblNomeCompleto);
+							lblNomeCompleto.setVisible(false);
+							
+							JLabel lblDescricao = new JLabel();
+							lblDescricao.setSize(200,20);
+							lblDescricao.setLocation(30, 100);
+							dica.add(lblDescricao);
+							lblDescricao.setVisible(false);
+							
+							JLabel lblExemplo = new JLabel();
+							lblExemplo.setSize(200,20);
+							lblExemplo.setLocation(30, 130);
+							dica.add(lblExemplo);
+							lblExemplo.setVisible(false);
+							
+							escolher.addActionListener(new ActionListener(){
+
+								@Override
+								public void actionPerformed(ActionEvent arg0) {
+									dica.invalidate();
+									dica.validate();
+									for(int i = 0;  i < ArraysLists.operadores.size(); i++){
+										if(ArraysLists.operadores.get(i).toString().equals(operadores.getSelectedItem().toString())){
+											lblNomeCompleto.setText("<html><b>"+ArraysLists.operadores.get(i).getNomeInstrucao()+"</b></html>");
+											lblDescricao.setText("<html><b style='color: red;'>"+ArraysLists.operadores.get(i).getComentarios()+"</b></html>");
+											lblExemplo.setText("<html>Exemplo de Uso: <b style='color: yellow;'>"+ArraysLists.operadores.get(i).getExemplo()+"</b></html>");
+										}
+									}
+									lblNomeCompleto.setVisible(true);
+									lblDescricao.setVisible(true);
+									lblExemplo.setVisible(true);
+									
+									}
+									
+								}
+								
+							);
+							
+							
+							
+							
+							
 							System.out.println(ArraysLists.itensMenuLista.get(6).getNomeMenu());
 						}
 					});

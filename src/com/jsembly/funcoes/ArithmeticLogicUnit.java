@@ -41,7 +41,16 @@ public class ArithmeticLogicUnit {
 	}
 	
 	public static int addu(int rs, int rt){ int rd = BinaryArithmetic.sumUnsigned(rs, rt); return rd; }
+
+	public static int addiu(int rs, int rt){ int rd = BinaryArithmetic.sumUnsigned(rs, rt); return rd; } // linha nova
 	
 	public static int subu(int rs, int rt){ int rd = BinaryArithmetic.subtractUnsigned(rs, rt); return rd; }
-
+    
+	public static int mult(int rs ,int rt){int rd = BinaryArithmetic.multiply(rs, rt);return rd;}
+	
+	public static int div(int rs ,int rt){int rd = BinaryArithmetic.divide(rs, rt);return rd;}
+	
+	public static int muli(int rs ,int rt){int rd = BinaryArithmetic.multiply(rs, rt);return rd;}
+	
+	//public static int move(int rd, int rs){ int rd = rs ; return rd;} //linha nova
 }

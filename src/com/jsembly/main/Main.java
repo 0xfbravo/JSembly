@@ -24,7 +24,7 @@ public class Main {
         	  
         	GraphiteLookAndFeel.setCurrentTheme(props);
             UIManager.setLookAndFeel("com.jtattoo.plaf.graphite.GraphiteLookAndFeel");
-            new Janela("jSembly",1300,600);
+            new Janela("JSembly",1300,600);
             Janela.janelaInicial.setIconImage(Utilidades.buscarIcone("img/weather_clouds.png").getImage());
         }
         catch (Exception ex) {

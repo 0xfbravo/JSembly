@@ -26,7 +26,6 @@ public class Cores {
 	
 	public static void buscarCores(String temp,JTextPane linguagemMIPS){
 	ArrayList<String> linhasLidas = Utilidades.LerArquivo(temp);
-	int c = 0;
 	for(String linhas : linhasLidas){
 		Pattern operador = Pattern.compile("\\b\\w{1,4} [$]|\\b\\w{1,4} \\d",Pattern.CASE_INSENSITIVE);
 		Pattern registrador = Pattern.compile("[$]([a-z][0-9])|[$]([a-z][a-z])", Pattern.CASE_INSENSITIVE);

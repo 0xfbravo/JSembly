@@ -1,5 +1,7 @@
 package com.jsembly.menu;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,9 +18,9 @@ import com.jsembly.main.Memoria;
 import com.jsembly.mips.Registrador;
 import com.jsembly.mips.TipoInstrucao;
 
-public class Montar {
+public class Montador {
 
-	public Montar(){
+	public Montador(){
 		String lblAddress = "";
 		String novoEndLbl = "";
 		boolean erro = false;
@@ -186,6 +188,78 @@ public class Montar {
 			    		  					}
 			    		  				}
 		    		  				break;
+		    		  				//ANDI
+			    		  			case 13:
+			    		  				decimal = Integer.parseInt(enderecoOuLabel, 10);
+				    		  			binario = Integer.toBinaryString(decimal);
+				    		  			while(binario.length()<16){
+				    		  				binario = "0" + binario ;
+				    		  				lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),binario);
+				    		  			}
+				    		  			if(BinaryLogic.chkOverflow(lm, linhaAtual,ArraysLists.operadores.get(i),ArraysLists.regEncontrados,binario)) break;
+		    		  					if(BinaryLogic.chkUnderflow(lm, linhaAtual,ArraysLists.operadores.get(i),ArraysLists.regEncontrados,binario)) break;
+		    		  					for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+					    		  			if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(1).toString())){
+					    		  				valorReg = Janela.dtm.getValueAt(r, 2).toString();
+					    		  			}
+					    		  		}
+		    		  					Memoria.AlocarMemoria(lm, Janela.dtmMem);
+		    		  					Janela.painelLinguagemMaquina.append(lm+"\n");
+		    		  					Janela.dtmExec.addRow(new Object[]{
+		    		  							Memoria.BuscarEndereco(lm.substring(0, 8), Janela.dtmMem),
+		    		  							"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
+		    		  							ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+enderecoOuLabel,
+		    		  							linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
+			    		  				
+		    		  					for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+			    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+			    		  						Janela.dtm.setValueAt(
+			    		  								ConversaoBase.converteBinarioParaDecimal(BinaryLogic.and(valorReg, enderecoOuLabel)),
+			    		  								r,
+			    		  								2);
+			    		  						Janela.dtm.setValueAt(
+			    		  								BinaryLogic.resizeBinary(BinaryLogic.and(valorReg, enderecoOuLabel),32,true),
+			    		  								r,
+			    		  								3);
+			    		  					}
+			    		  				}
+			    		  			break;
+		    		  				//ANDI
+			    		  			case 14:
+			    		  				decimal = Integer.parseInt(enderecoOuLabel, 10);
+				    		  			binario = Integer.toBinaryString(decimal);
+				    		  			while(binario.length()<16){
+				    		  				binario = "0" + binario ;
+				    		  				lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),binario);
+				    		  			}
+				    		  			if(BinaryLogic.chkOverflow(lm, linhaAtual,ArraysLists.operadores.get(i),ArraysLists.regEncontrados,binario)) break;
+		    		  					if(BinaryLogic.chkUnderflow(lm, linhaAtual,ArraysLists.operadores.get(i),ArraysLists.regEncontrados,binario)) break;
+		    		  					for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+					    		  			if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(1).toString())){
+					    		  				valorReg = Janela.dtm.getValueAt(r, 2).toString();
+					    		  			}
+					    		  		}
+		    		  					Memoria.AlocarMemoria(lm, Janela.dtmMem);
+		    		  					Janela.painelLinguagemMaquina.append(lm+"\n");
+		    		  					Janela.dtmExec.addRow(new Object[]{
+		    		  							Memoria.BuscarEndereco(lm.substring(0, 8), Janela.dtmMem),
+		    		  							"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
+		    		  							ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+enderecoOuLabel,
+		    		  							linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
+			    		  				
+		    		  					for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+			    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+			    		  						Janela.dtm.setValueAt(
+			    		  								ConversaoBase.converteBinarioParaDecimal(BinaryLogic.or(valorReg, enderecoOuLabel)),
+			    		  								r,
+			    		  								2);
+			    		  						Janela.dtm.setValueAt(
+			    		  								BinaryLogic.resizeBinary(BinaryLogic.or(valorReg, enderecoOuLabel),32,true),
+			    		  								r,
+			    		  								3);
+			    		  					}
+			    		  				}
+			    		  			break;
 		    		  				// SLTI
 		    		  				case 20:
 		    		  					decimal = Integer.parseInt(enderecoOuLabel, 10);
@@ -220,8 +294,38 @@ public class Montar {
 			    		  							Janela.dtm.setValueAt( BinaryLogic.resizeBinary("0", 32, true), r, 3);
 			    		  							}
 			    		  					}
+
 			    		  				}
 		    		  				break;
+		    		  				
+		    		  				//ADDIU
+	    		  					case 26:
+	    		  						decimal = Integer.parseInt(enderecoOuLabel, 10);
+				    		  			binario = Integer.toBinaryString(decimal);
+				    		  			while(binario.length()<16){
+				    		  				binario = "0" + binario ;
+				    		  				lm = TipoInstrucao.InstrucaoTipoI(ArraysLists.operadores.get(i).getValorBits(),ArraysLists.regEncontrados.get(0).getValorBits(),ArraysLists.regEncontrados.get(1).getValorBits(),binario);
+				    		  			}
+				    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+						    		  			if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(1).toString())){
+						    		  				valorReg = Janela.dtm.getValueAt(r, 2).toString();
+						    		  			}
+				    		  				}
+				    		  				Memoria.AlocarMemoria(lm, Janela.dtmMem);
+			    		  					Janela.painelLinguagemMaquina.append(lm+"\n");
+			    		  					Janela.dtmExec.addRow(new Object[]{
+			    		  							Memoria.BuscarEndereco(lm.substring(0, 8), Janela.dtmMem),
+			    		  							"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
+			    		  							ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+enderecoOuLabel,
+			    		  							linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
+						    		  		regSalvar = ArithmeticLogicUnit.addiu(Integer.parseInt(valorReg,10), decimal);
+				    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+				    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+				    		  						Janela.dtm.setValueAt(regSalvar, r, 2);
+				    		  						Janela.dtm.setValueAt( BinaryLogic.resizeBinary(ConversaoBase.converteDecimalParaBinario(regSalvar), 32, true), r, 3);
+				    		  					}
+				    		  				}
+			    		  				break;
 		    		  				
 		    		  				default:
 			    		  				JOptionPane.showMessageDialog(
@@ -250,7 +354,7 @@ public class Montar {
 								}
 							}
 							lm = TipoInstrucao.InstrucaoTipoJ(ArraysLists.operadores.get(i).getValorBits(),novoEndLbl);
-							System.out.println(lm);
+							//System.out.println(lm);
 							if(BinaryLogic.chkOverflow(lm, linhaAtual,ArraysLists.operadores.get(i),binario)) break;
 		  					if(BinaryLogic.chkUnderflow(lm, linhaAtual,ArraysLists.operadores.get(i),binario)) break;
 							Memoria.AlocarMemoria(lm, Janela.dtmMem);
@@ -260,6 +364,15 @@ public class Montar {
 		    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
 		    		  				ArraysLists.operadores.get(i)+" "+lblAddress,
 		    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+enderecoOuLabel});
+							Janela.dtm.setValueAt(lblAddress, 0, 2);
+							Janela.dtm.setValueAt(BinaryLogic.resizeBinary(lblAddress,32,true),
+													0,
+													3);
+							for(int l = 0; l < linhasLidas.size(); l++){
+								if(linhasLidas.get(l).equals(enderecoOuLabel+":")){
+									System.out.println("Achei a label na posição: "+l);
+								}
+							}
 		    		  		break;
 		    		  		
 		    		  		
@@ -381,16 +494,31 @@ public class Montar {
 		    		  					}
 		    		  				}
 		    		  			break;
-		    		  			// NOR
-		    		  			case 12:
+		    		  			// NAND
+		    		  			case 13:
 		    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
 		    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
 		    		  						Janela.dtm.setValueAt(
-		    		  								ConversaoBase.converteBinarioParaDecimal(BinaryLogic.nor(valorReg2,valorReg3)),
+		    		  								ConversaoBase.converteBinarioParaDecimal(BinaryLogic.nand(valorReg2,valorReg3)),
 		    		  								r,
 		    		  								2);
 		    		  						Janela.dtm.setValueAt(
-		    		  								BinaryLogic.resizeBinary(BinaryLogic.nor(valorReg2,valorReg3),32,true),
+		    		  								BinaryLogic.resizeBinary(BinaryLogic.nand(valorReg2,valorReg3),32,true),
+		    		  								r,
+		    		  								3);
+		    		  					}
+		    		  				}
+		    		  			break;
+		    		  			// XNOR
+		    		  			case 14:
+		    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+		    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+		    		  						Janela.dtm.setValueAt(
+		    		  								ConversaoBase.converteBinarioParaDecimal(BinaryLogic.xnor(valorReg2,valorReg3)),
+		    		  								r,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								BinaryLogic.resizeBinary(BinaryLogic.xnor(valorReg2,valorReg3),32,true),
 		    		  								r,
 		    		  								3);
 		    		  					}
@@ -417,7 +545,7 @@ public class Montar {
 		    		  					}
 		    		  				}
 		    		  			break;
-		    		  			// SLL
+		    		  			// SRL
 		    		  			case 16:
 		    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
 		    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
@@ -438,6 +566,239 @@ public class Montar {
 		    		  					}
 		    		  				}
 		    		  			break;
+		    		  			// SLT
+	    		  				case 19:
+			    		  			for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+				    		  			if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(1).toString())){
+				    		  				valorReg = Janela.dtm.getValueAt(r, 2).toString();
+				    		  			}
+				    		  			if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(2).toString())){
+				    		  				valorReg2 = Janela.dtm.getValueAt(r, 2).toString();
+				    		  			}
+				    		  		}
+	    		  					//Memoria.AlocarMemoria(lm, Janela.dtmMem);
+				    		  		boolean b = ArithmeticLogicUnit.slti(Integer.parseInt(valorReg,10), Integer.parseInt(valorReg2,10));
+		    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+		    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+		    		  						if(b){
+		    		  							Janela.dtm.setValueAt(1, r, 2);
+		    		  							Janela.dtm.setValueAt(BinaryLogic.resizeBinary("1", 32, true), r, 3);
+		    		  						} else {
+		    		  							Janela.dtm.setValueAt(0, r, 2);
+		    		  							Janela.dtm.setValueAt(BinaryLogic.resizeBinary("0", 32, true), r, 3);
+		    		  						}
+		    		  					}
+		    		  				}
+	    		  				break;
+		    		  			// MULT
+		    		  			case 24:
+		    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+		    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+		    		  						int resultadoMult = 0;
+		    		  						if(!BinaryLogic.chkOverflowMult(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10),
+		    		  								ArraysLists.operadores.get(i), linhaAtual))
+		    		  						resultadoMult = ArithmeticLogicUnit.mult(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10));
+		    		  						// -- Valor REGISTRADOR
+		    		  						Janela.dtm.setValueAt(
+		    		  								resultadoMult,
+		    		  								r,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								BinaryLogic.resizeBinary(ConversaoBase.converteDecimalParaBinario(resultadoMult),32,true),
+		    		  								r,
+		    		  								3);
+		    		  						
+		    		  						// -- Valor Binário HI & LO
+		    		  						// ~ HI
+		    		  						String hi = BinaryLogic.resizeBinary(
+		    		  								ConversaoBase.converteDecimalParaBinario(resultadoMult),32,true).substring(16, 32);
+		    		  						while(hi.length() < 32){
+		    		  							hi = hi+"0";
+		    		  						}
+		    		  						Janela.dtm.setValueAt(
+		    		  								hi,
+		    		  								1,
+		    		  								3);
+		    		  						// ~ LO
+		    		  						String lo = BinaryLogic.resizeBinary(
+		    		  								ConversaoBase.converteDecimalParaBinario(resultadoMult),32,true).substring(16, 32);
+		    		  						while(lo.length() < 32){
+		    		  							lo = "0"+lo;
+		    		  						}
+		    		  						Janela.dtm.setValueAt(
+		    		  								lo,
+		    		  								2,
+		    		  								3);
+		    		  						
+		    		  						// -- Valor Decimal HI & LO
+		    		  						Janela.dtm.setValueAt(
+		    		  								ConversaoBase.converteBinarioParaDecimal(
+		    		  										BinaryLogic.resizeBinary(
+		    		  												ConversaoBase.converteDecimalParaBinario(resultadoMult),32,true).substring(0, 16)),
+		    		  								1,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								ConversaoBase.converteBinarioParaDecimal(
+		    		  										BinaryLogic.resizeBinary(
+		    		  												ConversaoBase.converteDecimalParaBinario(resultadoMult),32,true).substring(16, 32)),
+		    		  								2,
+		    		  								2);
+		    		  					}
+		    		  				}
+		    		  			break;
+		    		  			// MULTU
+		    		  			case 25:
+		    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+		    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+		    		  						int resultadoMult = ArithmeticLogicUnit.mult(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10));
+		    		  						// -- Valor REGISTRADOR
+		    		  						Janela.dtm.setValueAt(
+		    		  								resultadoMult,
+		    		  								r,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								BinaryLogic.resizeBinary(ConversaoBase.converteDecimalParaBinario(resultadoMult),32,true),
+		    		  								r,
+		    		  								3);
+		    		  						
+		    		  						// -- Valor Binário HI & LO
+		    		  						// ~ HI
+		    		  						String hi = BinaryLogic.resizeBinary(
+		    		  								ConversaoBase.converteDecimalParaBinario(resultadoMult),32,true).substring(16, 32);
+		    		  						while(hi.length() < 32){
+		    		  							hi = hi+"0";
+		    		  						}
+		    		  						Janela.dtm.setValueAt(
+		    		  								hi,
+		    		  								1,
+		    		  								3);
+		    		  						// ~ LO
+		    		  						String lo = BinaryLogic.resizeBinary(
+		    		  								ConversaoBase.converteDecimalParaBinario(resultadoMult),32,true).substring(16, 32);
+		    		  						while(lo.length() < 32){
+		    		  							lo = "0"+lo;
+		    		  						}
+		    		  						Janela.dtm.setValueAt(
+		    		  								lo,
+		    		  								2,
+		    		  								3);
+		    		  						
+		    		  						// -- Valor Decimal HI & LO
+		    		  						Janela.dtm.setValueAt(
+		    		  								ConversaoBase.converteBinarioParaDecimal(
+		    		  										BinaryLogic.resizeBinary(
+		    		  												ConversaoBase.converteDecimalParaBinario(resultadoMult),32,true).substring(0, 16)),
+		    		  								1,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								ConversaoBase.converteBinarioParaDecimal(
+		    		  										BinaryLogic.resizeBinary(
+		    		  												ConversaoBase.converteDecimalParaBinario(resultadoMult),32,true).substring(16, 32)),
+		    		  								2,
+		    		  								2);
+		    		  					}
+		    		  				}
+		    		  			break;
+		    		  			//DIV
+		    		  			case 28:
+		    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+		    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+		    		  						Janela.dtm.setValueAt(
+		    		  								ArithmeticLogicUnit.div(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10)),
+		    		  								1,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								Integer.parseInt(valorReg2,10)%Integer.parseInt(valorReg3,10),
+		    		  								2,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								ArithmeticLogicUnit.div(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10)),
+		    		  								r,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								BinaryLogic.resizeBinary(ConversaoBase.converteDecimalParaBinario(
+		    		  										ArithmeticLogicUnit.add(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10))
+		    		  										),32,true),
+		    		  								r,
+		    		  								3);
+		    		  					}
+		    		  				}
+		    		  			break;
+		    		  			//DIVU
+		    		  			case 29:
+		    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+		    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+		    		  						Janela.dtm.setValueAt(
+		    		  								ArithmeticLogicUnit.div(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10)),
+		    		  								1,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								Integer.parseInt(valorReg2,10)%Integer.parseInt(valorReg3,10),
+		    		  								2,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								ArithmeticLogicUnit.div(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10)),
+		    		  								r,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								BinaryLogic.resizeBinary(ConversaoBase.converteDecimalParaBinario(
+		    		  										ArithmeticLogicUnit.add(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10))
+		    		  										),32,true),
+		    		  								r,
+		    		  								3);
+		    		  					}
+		    		  				}
+		    		  			break;
+		    		  			//ADDU
+		    		  			case 30:
+		    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+		    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+		    		  						Janela.dtm.setValueAt(
+		    		  								ArithmeticLogicUnit.addu(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10)),
+		    		  								r,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								BinaryLogic.resizeBinary(ConversaoBase.converteDecimalParaBinario(
+		    		  										ArithmeticLogicUnit.add(Integer.parseInt(valorReg2,10), Integer.parseInt(valorReg3,10))
+		    		  										),32,true),
+		    		  								r,
+		    		  								3);
+		    		  					}
+		    		  				}
+		    		  			break;
+		    		  			// XOR
+		    		  			case 38:
+		    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+		    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+		    		  						Janela.dtm.setValueAt(
+		    		  								ConversaoBase.converteBinarioParaDecimal(BinaryLogic.xor(valorReg2,valorReg3)),
+		    		  								r,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								BinaryLogic.resizeBinary(BinaryLogic.xor(valorReg2,valorReg3),32,true),
+		    		  								r,
+		    		  								3);
+		    		  					}
+		    		  				}
+		    		  			break;
+		    		  			// NOR
+		    		  			case 39:
+		    		  				for(int r = 0; r < Janela.dtm.getRowCount(); r++){
+		    		  					if(Janela.dtm.getValueAt(r, 0).equals(ArraysLists.regEncontrados.get(0).toString())){
+		    		  						Janela.dtm.setValueAt(
+		    		  								ConversaoBase.converteBinarioParaDecimal(BinaryLogic.nor(valorReg2,valorReg3)),
+		    		  								r,
+		    		  								2);
+		    		  						Janela.dtm.setValueAt(
+		    		  								BinaryLogic.resizeBinary(BinaryLogic.nor(valorReg2,valorReg3),32,true),
+		    		  								r,
+		    		  								3);
+		    		  					}
+		    		  				}
+		    		  			break;
+		    		  				
+		    		  				
+		    		  				
 	    		  				default:
 		    		  				JOptionPane.showMessageDialog(
 		    		  						null,
@@ -454,12 +815,12 @@ public class Montar {
 		    		  		break;
 		    		  		
 		    		  		
-		    		  	// -- TIPO I (JUMP/BRANCH)
+		    		  	// -- TIPO I (LOAD/STORE)
 		    		  	case 3:
 		    		  		break;
 		    		  		
 		    		  		
-		    		  	// -- TIPO I (JUMP/BRANCH)
+		    		  	// -- TIPO R (JUMP/BRANCH)
 		    		  	case 4:
 		    		  		break;
 		    		  		
@@ -483,6 +844,7 @@ public class Montar {
 				    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
 				    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+","+novoEndLbl,
 				    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+enderecoOuLabel});
+
 								} else {
 									JOptionPane.showMessageDialog(null,
 											"<html>"
@@ -524,5 +886,70 @@ public class Montar {
 		    }
 		}
 	}
+	}
+	
+	public void Reexecutar(String endLabel){
+		String instrucao = null;
+		for(int i = 0; i < Janela.dtmMem.getRowCount(); i++){
+			if(Janela.dtmMem.getValueAt(i, 0).equals(endLabel)){
+				instrucao = Janela.dtmMem.getValueAt(i,1).toString();
+				instrucao += Janela.dtmMem.getValueAt(i+1,1).toString();
+				instrucao += Janela.dtmMem.getValueAt(i+2,1).toString();
+				instrucao += Janela.dtmMem.getValueAt(i+3,1).toString();
+				System.out.println(instrucao);
+				for(int j = 0; j < ArraysLists.operadores.size(); j++){
+					switch(ArraysLists.operadores.get(j).getTipoIntrucao()){
+					// -- TIPO I
+					case 0:
+						if(ArraysLists.operadores.get(j).getValorBits().equals(instrucao.substring(0, 6))){
+						System.out.println("Instrução tipo I");
+						System.out.println("Achei um "+ArraysLists.operadores.get(j));
+						}
+					j = ArraysLists.operadores.size();
+					break;
+					// -- TIPO J
+					case 1:
+						if(ArraysLists.operadores.get(j).getValorBits().equals(instrucao.substring(0, 6))){
+						System.out.println("Instrução tipo J");
+						System.out.println("Achei um "+ArraysLists.operadores.get(j));
+						}
+					j = ArraysLists.operadores.size();
+					break;
+					// -- TIPO R
+					case 2:
+						if(ArraysLists.operadores.get(j).getValorBits().equals(instrucao.substring(0, 6))){
+						System.out.println("Instrução tipo R");
+						System.out.println("Achei um "+ArraysLists.operadores.get(j));
+						}
+					j = ArraysLists.operadores.size();
+					break;
+					// -- TIPO I (LOAD/STORE)
+					case 3:
+						if(ArraysLists.operadores.get(j).getValorBits().equals(instrucao.substring(0, 6))){
+						System.out.println("Instrução tipo I (LOAD/STORE)");
+						System.out.println("Achei um "+ArraysLists.operadores.get(j));
+						}
+					j = ArraysLists.operadores.size();
+					break;
+					// -- TIPO R (JUMP/BRANCH)
+					case 4:
+						if(ArraysLists.operadores.get(j).getValorBits().equals(instrucao.substring(0, 6))){
+						System.out.println("Instrução tipo R (JUMP/BRANCH)");
+						System.out.println("Achei um "+ArraysLists.operadores.get(j));
+						}
+					j = ArraysLists.operadores.size();
+					break;
+					// -- TIPO I (JUMP/BRANCH)
+					case 5:
+						if(ArraysLists.operadores.get(j).getValorBits().equals(instrucao.substring(0, 6))){
+						System.out.println("Instrução tipo I (JUMP/BRANCH)");
+						System.out.println("Achei um "+ArraysLists.operadores.get(j));
+						}
+					j = ArraysLists.operadores.size();
+					break;
+					}
+				}
+			}
+		}
 	}
 }

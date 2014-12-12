@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import com.jsembly.main.ArraysLists;
 import com.jsembly.mips.Operador;
 import com.jsembly.mips.Registrador;
 
@@ -94,7 +95,21 @@ public class BinaryLogic {
 		return false;
 	}
 
-	
+	public static boolean chkOverflowMult(int x, int y, Operador op, int linhaAtual) {
+		  long m = ((long)x) * ((long)y);
+	      if (m < Integer.MIN_VALUE || m > Integer.MAX_VALUE) {
+	    	  JOptionPane.showMessageDialog(null,
+						"<html>"
+						+ "Overflow na linha: "
+						+ "<b style='color:red;'>"+linhaAtual+"</b><br>"
+						+ "<i>Número total de bits da instrução digitada é <b>maior</b> que 32 bits.</i><br><br>"
+						+ "Operador: <b>"+op+"</b> | Valor Binário: <b>"+op.getValorBits()+"</b><br>"
+						+ "Valor Digitado 1:  <b>"+x+"</b> | Valor Digitado 2:  <b>"+y+"</b>"
+						+ "</html>", "Detectado Overflow!", JOptionPane.ERROR_MESSAGE);
+	    	  throw new ArithmeticException("overflow: mul");
+	      }
+	      return false;
+	 }
 	public static boolean chkOverflow(String lm, int linhaAtual, Operador op, String valorBinario){
 		if(lm.length() > 32){
 				JOptionPane.showMessageDialog(null,
@@ -222,11 +237,11 @@ public class BinaryLogic {
 	}
 	
 	public static String and(String firstBinary, String secondBinary){
+		String bin1 = resizeBinary(ConversaoBase.converteDecimalParaBinario(Integer.parseInt(firstBinary)),32,true);
+		String bin2 = resizeBinary(ConversaoBase.converteDecimalParaBinario(Integer.parseInt(secondBinary)),32,true);
 		String binary = new String();
-		if(firstBinary.length() != 32) firstBinary = resizeBinary(firstBinary, 32,false);	
-		if(secondBinary.length() != 32) secondBinary = resizeBinary(secondBinary, 32,false);	
-		for(int i = 0; i < firstBinary.length(); i++){
-			if(firstBinary.charAt(i) == '0' | secondBinary.charAt(i) == '0'){
+		for(int i = 0; i < bin1.length(); i++){
+			if(bin1.charAt(i) == '0' && bin2.charAt(i) == '0'){
 				binary = binary + '0';
 			} else {
 				binary = binary + '1';
@@ -236,11 +251,11 @@ public class BinaryLogic {
 	}
 	
 	public static String or(String firstBinary, String secondBinary){
+		String bin1 = resizeBinary(ConversaoBase.converteDecimalParaBinario(Integer.parseInt(firstBinary)),32,true);
+		String bin2 = resizeBinary(ConversaoBase.converteDecimalParaBinario(Integer.parseInt(secondBinary)),32,true);
 		String binary = new String();
-		if(firstBinary.length() != 32) firstBinary = resizeBinary(firstBinary, 32,false);
-		if(secondBinary.length() != 32) secondBinary = resizeBinary(secondBinary, 32,false);
-		for(int i = 0; i < firstBinary.length(); i++){
-			if(firstBinary.charAt(i) == '1' | secondBinary.charAt(i) == '1'){
+		for(int i = 0; i < bin1.length(); i++){
+			if(bin1.charAt(i) == '1' && bin2.charAt(i) == '1'){
 				binary = binary + '1';
 			} else {
 				binary = binary + '0';
@@ -249,15 +264,16 @@ public class BinaryLogic {
 		return binary;
 	}
 	
-	public static String xor(String firstBinary, String secondBinary){		
+	public static String xor(String firstBinary, String secondBinary){	
+		String bin1 = ConversaoBase.converteDecimalParaBinario(Integer.parseInt(firstBinary));
+		String bin2 = ConversaoBase.converteDecimalParaBinario(Integer.parseInt(secondBinary));
+		System.out.println(bin1+"-"+bin2);
 		String binary = new String();
-		if(firstBinary.length() != 32) firstBinary = resizeBinary(firstBinary, 32,false);		
-		if(secondBinary.length() != 32) secondBinary = resizeBinary(secondBinary, 32,false);	
-		for(int i = 0; i < firstBinary.length(); i++){
-			if(firstBinary.charAt(i) == secondBinary.charAt(i)){
-				binary = binary + '0';
-			} else {
+		for(int i = 0; i < bin1.length(); i++){
+			if(bin1.charAt(i) == bin2.charAt(i)){
 				binary = binary + '1';
+			} else {
+				binary = binary + '0';
 			}
 		}
 		return binary;
@@ -275,7 +291,7 @@ public class BinaryLogic {
 		return binary;
 	}
 	
-	public static String xnor(String firstBinary, String secondBinary){	
+	public static String xnor(String firstBinary, String secondBinary){
 		String binary = xor(firstBinary, secondBinary);
 		binary = inverter(binary);
 		return binary;
