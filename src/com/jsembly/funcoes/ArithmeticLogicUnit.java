@@ -52,5 +52,9 @@ public class ArithmeticLogicUnit {
 	
 	public static int muli(int rs ,int rt){int rd = BinaryArithmetic.multiply(rs, rt);return rd;}
 	
+	public static boolean beq(int rs, int rt){if(rs == rt){ return true; } else { return false;} }
+	
+	public static boolean bne(int rs, int rt){if(rs != rt){ return true; } else { return false;} }
+	
 	//public static int move(int rd, int rs){ int rd = rs ; return rd;} //linha nova
 }

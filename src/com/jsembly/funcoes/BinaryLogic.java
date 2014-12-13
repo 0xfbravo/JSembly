@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
-import com.jsembly.main.ArraysLists;
 import com.jsembly.mips.Operador;
 import com.jsembly.mips.Registrador;
 

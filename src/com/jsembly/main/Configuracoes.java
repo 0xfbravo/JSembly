@@ -8,7 +8,21 @@ public class Configuracoes {
 			memoria = "Memória",
 	        executar = "Executar";
 	
-	
+	public enum memoria{
+		decimal("Decimal"),Hexadecimal("Hexadecimal"),binario("Binário");
+		private String nomeMemoria;
+		public String getnomeMemoria() {
+			return nomeMemoria;
+		}
+
+		public void setnomeMemoria(String nomeMemoria) {
+			this.nomeMemoria = nomeMemoria;
+		}
+		memoria(String nomeMemoria){
+			this.setnomeMemoria(nomeMemoria);
+		}
+		
+	}
 	public enum linguagem{
 		pt_br("Português - Brasil"),eng("English - International");
 		

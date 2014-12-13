@@ -21,7 +21,7 @@ public enum Operador {
 	slti(20,"001010","Set On Less Than Immediate",0), // !_IMPLEMENTADO & FUNCIONAL_!
 	sltiu(999,"001011","Set On Less Than Immediate Unsigned",0), // !_IMPLEMENTADO & FUNCIONAL_!
 	// -- Tipo I (LOAD/STORE)
-	lw(3,"100011","Load Word",3), /* Falta Implementar */
+	lw(3,"100011","Load Word",3), /* TODO: Falta Implementar LW*/
 	sw(4,"101011","Store Word",3), /* Falta Implementar */
 	lh(5,"100001","Load Half",3), /* Falta Implementar */
 	sh(6,"101001","Store Half",3), /* Falta Implementar */
@@ -31,15 +31,15 @@ public enum Operador {
 	lhu(999,"100101","Load Halfword Unsigned",3), /* Falta Implementar */
 	lhi(999,"","Load to High",0), /* Falta Implementar -- ID Aleatória */
 	llo(999,"","Load to Low",0), /* Falta Implementar -- ID Aleatória */
-	mthi(999,"010001","Move To High",3), /* Falta Implementar -- ID Aleatória */
-	mtlo(999,"010011","Move To Low",3), /* Falta Implementar -- ID Aleatória */
+	mthi(100,"010001","Move To High",3), // !_IMPLEMENTADO & FUNCIONAL_!
+	mtlo(101,"010011","Move To Low",3), // !_IMPLEMENTADO & FUNCIONAL_!
 	// -- Tipo I (JUMP/BRANCH)
 	blt(1,"000001","Branch Less Than",5), /* Falta Implementar */
 	ble(6,"000110","Branch Less Than or Equal",5), /* Falta Implementar */
 	bgt(999,"","Branch Greater Than",5), /* Falta Implementar */
 	bge(999,"","Branch Greater Than or Equal",5), /* Falta Implementar */
-	beq(17,"000100","Branch on Equal",5), /* Falta Implementar */
-	bne(18,"000101","Branch on Not Equal",5), /* Falta Implementar */
+	beq(17,"000100","Branch on Equal",5), // !_IMPLEMENTADO & FUNCIONAL_!
+	bne(18,"000101","Branch on Not Equal",5), // !_IMPLEMENTADO & FUNCIONAL_!
 	blez(999,"000110","Branch Less Than or Equal Zero",5), /* Falta Implementar */
 	bgtz(999,"000111","Branch Greater Than Zero",5), /* Falta Implementar */
 	bltz(999,"000001","Branch Less Than Zero",5), /* Falta Implementar */
@@ -47,11 +47,11 @@ public enum Operador {
 	
 	// -- Tipo J
 	j(21,"000010","Jump",1), // !_IMPLEMENTADO & FUNCIONAL_!
-	jal(23,"000011","Jump and Link",1), /* Falta Implementar */
+	jal(23,"000011","Jump and Link",1), // !_IMPLEMENTADO & FUNCIONAL_!
 	
 	// -- Tipo R
-	mfhi(999,"010000","Move From High",2), /* Falta Implementar -- ID Aleatória*/
-	mflo(999,"010010","Move From Low",2), /* Falta Implementar  -- ID Aleatória*/
+	mfhi(999,"010000","Move From High",2), /* Falta Implementar */
+	mflo(999,"010010","Move From Low",2), /* Falta Implementar */
 	add(0,"100000","Add",2), // !_IMPLEMENTADO & FUNCIONAL_!
 	sub(1,"100010","Substract",2), // !_IMPLEMENTADO & FUNCIONAL_!
 	and(10,"100100","And",2), // !_IMPLEMENTADO & FUNCIONAL_!
@@ -73,11 +73,11 @@ public enum Operador {
 	xor(38,"100110","Exclusive Or",2), // !_IMPLEMENTADO & FUNCIONAL_!
 	nor(39,"100111","Not Or",2), // !_IMPLEMENTADO & FUNCIONAL_!
 	subu(999,"100011","Substract Unsigned",2), /* Falta Implementar */
-	sltu(999,"101011","Set On Less Than Unsigned",2), /* Falta Implementar */
+	sltu(104,"101011","Set On Less Than Unsigned",2), // !_IMPLEMENTADO & FUNCIONAL_!
 	move(999,"","Move",2), /* Falta Implementar */
 	// -- Tipo R (JUMP/BRANCH)
-	jr(22,"001000","Jump Register",4), /* Falta Implementar */
-	jalr(999,"001001","Jump and Link Register",4); /* Falta Implementar */
+	jr(22,"001000","Jump Register",4), // !_IMPLEMENTADO & FUNCIONAL_!
+	jalr(999,"001001","Jump and Link Register",4); // !_IMPLEMENTADO & FUNCIONAL_!
 	
 	
 	private String categoria;

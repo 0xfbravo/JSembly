@@ -88,7 +88,8 @@ public class Janela extends JFrame{
 	public static 	DefaultStyledDocument documento = new DefaultStyledDocument();
 	public static 		JTextPane linguagemMIPS = new JTextPane(documento);
 	public static 			StyledDocument doc = linguagemMIPS.getStyledDocument();
-	public static 		JTable abaExecutar = new JTable();
+	public static JTable abaExecutar = new JTable();
+	public static 	JScrollPane abaExecutar_Scroll = new JScrollPane(abaExecutar);
 	public static JDesktopPane painelBaixo = new JDesktopPane();
 	public static 	JTabbedPane valoresMIPS = new JTabbedPane();
 	public static 	JTabbedPane tblMemoria = new JTabbedPane();
@@ -161,8 +162,9 @@ public class Janela extends JFrame{
 							case KeyEvent.VK_CAPS_LOCK:
 							case KeyEvent.VK_CONTROL:
 							case KeyEvent.VK_TAB:
-							case KeyEvent.VK_ALT:	
+							case KeyEvent.VK_ALT:
 							break;
+								case KeyEvent.VK_BACK_SPACE:
 								default:
 									bw.write(linguagemMIPS.getText());
 									bw.close();
@@ -198,7 +200,6 @@ public class Janela extends JFrame{
 		abaExecutar.getColumnModel().getColumn(2).setHeaderValue("Basic");
 		abaExecutar.getColumnModel().getColumn(3).setHeaderValue("Código");
 
-		JScrollPane abaExecutar_Scroll = new JScrollPane(abaExecutar);
 		painelCima.add(abaExecutar_Scroll,conf.getExecutar());
 		painelCima.setIconAt(2, Utilidades.buscarIcone("img/dashboard.png"));
 		
@@ -333,7 +334,7 @@ public class Janela extends JFrame{
 		listaReg.getColumnModel().getColumn(0).setHeaderValue("Registrador");
 		listaReg.getColumnModel().getColumn(0).setMaxWidth(63);
 		listaReg.getColumnModel().getColumn(1).setHeaderValue("ID");
-		listaReg.getColumnModel().getColumn(1).setMaxWidth(23);
+		listaReg.getColumnModel().getColumn(1).setMaxWidth(30);
 		listaReg.getColumnModel().getColumn(2).setHeaderValue("Valor");
 		listaReg.getColumnModel().getColumn(2).setMaxWidth(90);
 		listaReg.getColumnModel().getColumn(3).setHeaderValue("Valor Binário (32bits)");
@@ -635,7 +636,26 @@ public class Janela extends JFrame{
 					break;
 				// -- Compilar por Step
 				case 4:
-					itensMenu.setEnabled(false);
+					itensMenu.addActionListener(new ActionListener(){
+						public void actionPerformed(ActionEvent e){
+							System.out.println(linhaAtualStep);
+							ArrayList<String> linhasLidas = Utilidades.LerArquivo(Janela.temp.getAbsolutePath());
+							System.out.println(linhasLidas.size());
+							if(linhaAtualStep >= linhasLidas.size()){
+								JOptionPane.showMessageDialog(Janela.this,
+										"<html>"
+										+ "Prezado usuário, chegamos ao final do arquivo.<br>"
+										+ "O módulo <b>Step by Step</b> foi <i>desativado</i>."
+										+ "</html>",
+										"Atenção",
+										JOptionPane.WARNING_MESSAGE);
+								itensMenu.setEnabled(false);
+							} else {
+								Montador.Executar(linhasLidas.get(linhaAtualStep));
+								linhaAtualStep++;
+							}
+						}
+					});
 					break;
 					
 				// -- Configurações
@@ -665,6 +685,19 @@ public class Janela extends JFrame{
 							linguagem.setLocation(30, 30);
 							jdp.add(linguagem);
 							
+                            JLabel lblMemoria = new JLabel("Memória");
+							lblMemoria.setSize(170,20);
+							lblMemoria.setLocation(30, 70);
+							jdp.add(lblMemoria);
+							
+							JComboBox<String> memoria = new JComboBox<String>();
+							 memoria.setSize(170, 20);
+							 memoria.addItem(Configuracoes.memoria.decimal.getnomeMemoria());
+							 memoria.addItem(Configuracoes.memoria.binario.getnomeMemoria());
+							 memoria.addItem(Configuracoes.memoria.Hexadecimal.getnomeMemoria());
+							 memoria.setLocation(30, 90);
+							jdp.add(memoria);
+							
 							JButton salvar = new JButton("Salvar");
 							salvar.setSize(60,30);
 							salvar.setLocation(260, 130);
@@ -693,7 +726,7 @@ public class Janela extends JFrame{
 						public void actionPerformed(ActionEvent e){ new AddValores(); }
 					});
 					break;
-				// -- Dicas//linhas novas
+				// -- Dicas
 				case 7:
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
