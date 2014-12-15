@@ -54,76 +54,50 @@ public class IntTextField extends JTextField {
 	    }
 
 		@Override
-		public void addDocumentListener(DocumentListener arg0) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void addDocumentListener(DocumentListener arg0) {}
 
 		@Override
-		public void addUndoableEditListener(UndoableEditListener arg0) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void addUndoableEditListener(UndoableEditListener arg0) {}
 
 		@Override
 		public Position createPosition(int arg0) throws BadLocationException {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public Element getDefaultRootElement() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public int getLength() {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 
 		@Override
 		public Element[] getRootElements() {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public String getText(int arg0, int arg1) throws BadLocationException {
-			// TODO Auto-generated method stub
 			return null;
 		}
 
 		@Override
 		public void getText(int arg0, int arg1, Segment arg2)
-				throws BadLocationException {
-			// TODO Auto-generated method stub
-			
-		}
+				throws BadLocationException {}
 
 		@Override
-		public void remove(int arg0, int arg1) throws BadLocationException {
-			// TODO Auto-generated method stub
-			
-		}
+		public void remove(int arg0, int arg1) throws BadLocationException {}
 
 		@Override
-		public void removeDocumentListener(DocumentListener arg0) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void removeDocumentListener(DocumentListener arg0) {}
 
 		@Override
-		public void removeUndoableEditListener(UndoableEditListener arg0) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void removeUndoableEditListener(UndoableEditListener arg0) {}
 
 		@Override
-		public void render(Runnable arg0) {
-			// TODO Auto-generated method stub
-			
-		}
+		public void render(Runnable arg0) {}
 	  }
 }

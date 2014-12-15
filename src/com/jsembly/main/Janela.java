@@ -47,7 +47,6 @@ import com.jsembly.funcoes.BinaryLogic;
 import com.jsembly.funcoes.ConversaoBase;
 import com.jsembly.funcoes.Cores;
 import com.jsembly.menu.AddValores;
-import com.jsembly.menu.Montador;
 import com.jsembly.mips.Operador;
 import com.jsembly.mips.Registrador;
 
@@ -88,7 +87,29 @@ public class Janela extends JFrame{
 	public static 	DefaultStyledDocument documento = new DefaultStyledDocument();
 	public static 		JTextPane linguagemMIPS = new JTextPane(documento);
 	public static 			StyledDocument doc = linguagemMIPS.getStyledDocument();
-	public static JTable abaExecutar = new JTable();
+	public static JTable abaExecutar = new JTable(){
+		public Component prepareRenderer(TableCellRenderer renderer, int row, int column)
+		{
+			Component c = super.prepareRenderer(renderer, row, column);
+
+			//  Color row based on a cell value
+
+			if (!isRowSelected(row))
+			{
+				c.setBackground(getBackground());
+				int modelRow = convertRowIndexToModel(row);
+				String coluna0 = (String)getModel().getValueAt(modelRow, 0);
+				String coluna3 = (String)getModel().getValueAt(modelRow, 3);
+				if (("".equals(coluna0)) && (!"".equals(coluna3))){
+					c.setBackground(new Color(237,237,237)); c.setForeground(new Color(185,185,185));
+				} else {
+					c.setForeground(new Color(55,55,55));
+				}
+			}
+
+			return c;
+		}
+	};
 	public static 	JScrollPane abaExecutar_Scroll = new JScrollPane(abaExecutar);
 	public static JDesktopPane painelBaixo = new JDesktopPane();
 	public static 	JTabbedPane valoresMIPS = new JTabbedPane();
@@ -434,9 +455,11 @@ public class Janela extends JFrame{
 		painelMenu.setLayout(layoutMenu);
 		painelMenu.setBackground(new Color(63,63,63));
 		painelMenu.setPreferredSize(new Dimension(120,0));
+		
 		for(int i =0; i < ItensMenu.values().length; i++){
 			
 			SoftJButton itensMenu = new SoftJButton();
+			ArraysLists.botoesMenu.add(itensMenu);
 			itensMenu.setIcon(Utilidades.buscarIcone(ArraysLists.itensMenuLista.get(i).getCaminhoImg()));
 			itensMenu.setToolTipText(ArraysLists.itensMenuLista.get(i).getNomeMenu());
 			itensMenu.setText(ArraysLists.itensMenuLista.get(i).getNomeMenu());
@@ -501,6 +524,7 @@ public class Janela extends JFrame{
 				
 			});
 			painelMenu.add(itensMenu);
+			
 			switch(ArraysLists.itensMenuLista.get(i).getId()){
 				// -- Novo Arquivo
 				case 0:
@@ -628,32 +652,160 @@ public class Janela extends JFrame{
 						}
 					});
 					break;
-				// -- Compilar
+				// -- Montar
 				case 3:
 					itensMenu.addActionListener(new ActionListener(){
-						public void actionPerformed(ActionEvent e){ new Montador(); }
+						public void actionPerformed(ActionEvent e){ 
+							new Montador();
+							ArraysLists.botoesMenu.get(4).setEnabled(true);
+							}
 					});
 					break;
-				// -- Compilar por Step
+				// -- Executar
 				case 4:
+					itensMenu.setEnabled(false);
 					itensMenu.addActionListener(new ActionListener(){
 						public void actionPerformed(ActionEvent e){
-							System.out.println(linhaAtualStep);
-							ArrayList<String> linhasLidas = Utilidades.LerArquivo(Janela.temp.getAbsolutePath());
-							System.out.println(linhasLidas.size());
-							if(linhaAtualStep >= linhasLidas.size()){
-								JOptionPane.showMessageDialog(Janela.this,
-										"<html>"
-										+ "Prezado usuário, chegamos ao final do arquivo.<br>"
-										+ "O módulo <b>Step by Step</b> foi <i>desativado</i>."
-										+ "</html>",
-										"Atenção",
-										JOptionPane.WARNING_MESSAGE);
-								itensMenu.setEnabled(false);
-							} else {
-								Montador.Executar(linhasLidas.get(linhaAtualStep));
-								linhaAtualStep++;
-							}
+							JFrame janelaExecutar = new JFrame("Executar");
+							janelaExecutar.setExtendedState(JFrame.MAXIMIZED_BOTH);
+							janelaExecutar.setUndecorated(true);
+							janelaExecutar.setIconImage(Utilidades.buscarIcone("img/dashboard.png").getImage());
+							janelaExecutar.setVisible(true);
+							janelaExecutar.setSize(350, 200);
+							janelaExecutar.setResizable(false);
+				       		janelaExecutar.setLocationRelativeTo(null);
+							janelaExecutar.requestFocusInWindow();
+							
+							JDesktopPane jdpExec = new JDesktopPane();
+							janelaExecutar.add(jdpExec);
+							
+							SoftJButton execute = new SoftJButton();	
+                            execute.setSize(90,90);
+                            execute.setLocation(125, 30);
+                            execute.setIcon(Utilidades.buscarIcone("img/play1.png"));
+                            execute.setToolTipText("Executar Total");
+                            execute.setText("Executar Total");
+                            execute.setBorder(BorderFactory.createEmptyBorder());
+                            execute.setPreferredSize(new Dimension(90,0));
+                            execute.setBorderPainted(false);
+                            execute.setFocusPainted(false);
+                            execute.setHorizontalTextPosition(JButton.CENTER);
+                            execute.setVerticalTextPosition(JButton.BOTTOM);
+                            execute.setContentAreaFilled(false);
+                            execute.setOpaque(true);
+                            execute.setForeground(new Color(63,63,63));
+							jdpExec.add(execute);
+							execute.addActionListener(new ActionListener(){
+								public void actionPerformed(ActionEvent e){ 
+									for(int i = 0; i < ArraysLists.instrucoes.size(); i++){
+										switch(ArraysLists.instrucoes.get(i).getTipoOp()){
+											// Instrução TIPO I
+											case 0:
+												switch(ArraysLists.instrucoes.get(i).getOp().getId()){
+													default:
+														ArraysLists.instrucoes.get(i).Executar(
+																ArraysLists.instrucoes.get(i).getOp(),
+																ArraysLists.instrucoes.get(i).getR1(),
+																ArraysLists.instrucoes.get(i).getR2(),
+																ArraysLists.instrucoes.get(i).getEnderecoLabel(),
+																ArraysLists.instrucoes.get(i).getLinhaOp());
+													break;
+												}
+												break;
+												
+											// Instrução TIPO J
+											case 1:
+												switch(ArraysLists.instrucoes.get(i).getOp().getId()){
+													default:
+														ArraysLists.instrucoes.get(i).Executar(
+																ArraysLists.instrucoes.get(i).getOp(),
+																ArraysLists.instrucoes.get(i).getEnderecoLabel(),
+																ArraysLists.instrucoes.get(i).getLinhaOp());
+													break;
+												}
+												break;
+												
+											// Instrução TIPO R
+											case 2:
+												switch(ArraysLists.instrucoes.get(i).getOp().getId()){
+													// SLL & SRL
+													case 15:
+													case 16:
+														ArraysLists.instrucoes.get(i).Executar(
+																ArraysLists.instrucoes.get(i).getOp(),
+																ArraysLists.instrucoes.get(i).getR1(),
+																ArraysLists.instrucoes.get(i).getR2(),
+																ArraysLists.instrucoes.get(i).getEnderecoLabel(),
+																ArraysLists.instrucoes.get(i).getLinhaOp());
+													break;
+													
+													// MFHI & MFLO
+													case 102:
+													case 103:
+													break;
+													
+													default:
+														ArraysLists.instrucoes.get(i).Executar(
+															ArraysLists.instrucoes.get(i).getOp(),
+															ArraysLists.instrucoes.get(i).getR1(),
+															ArraysLists.instrucoes.get(i).getR2(),
+															ArraysLists.instrucoes.get(i).getR3(),
+															ArraysLists.instrucoes.get(i).getLinhaOp());
+													break;
+												}
+											break;
+											
+											// Instrução TIPO I (LOAD/STORE)
+											case 3:
+												switch(ArraysLists.instrucoes.get(i).getOp().getId()){
+												default:
+													ArraysLists.instrucoes.get(i).Executar(
+															ArraysLists.instrucoes.get(i).getOp(),
+															ArraysLists.instrucoes.get(i).getR1(),
+															ArraysLists.instrucoes.get(i).getEnderecoLabel(),
+															ArraysLists.instrucoes.get(i).getR2(),
+															ArraysLists.instrucoes.get(i).getLinhaOp());
+												break;
+												}
+												break;
+										}
+									}
+								}
+							});
+								
+							SoftJButton stepDown = new SoftJButton();			
+							stepDown.setSize(90,90);
+							stepDown.setLocation(25, 30);
+							stepDown.setIcon(Utilidades.buscarIcone("img/rewind12.png"));
+							stepDown.setToolTipText("Linha Anterior");
+                            stepDown.setText("Linha Anterior");
+                            stepDown.setBorder(BorderFactory.createEmptyBorder());
+                            stepDown.setPreferredSize(new Dimension(90,0));
+                            stepDown.setBorderPainted(false);
+                            stepDown.setFocusPainted(false);
+                            stepDown.setHorizontalTextPosition(JButton.CENTER);
+                            stepDown.setVerticalTextPosition(JButton.BOTTOM);
+                            stepDown.setContentAreaFilled(false);
+                            stepDown.setOpaque(true);
+                            stepDown.setForeground(new Color(63,63,63));
+							jdpExec.add(stepDown);
+													
+							SoftJButton stepUp = new SoftJButton();
+							stepUp.setSize(90,90);
+							stepUp.setLocation(225, 30);
+							stepUp.setIcon(Utilidades.buscarIcone("img/rewind13.png"));
+							stepUp.setToolTipText("Executar Total");
+                            stepUp.setText("Executar Total");
+                            stepUp.setBorder(BorderFactory.createEmptyBorder());
+                            stepUp.setPreferredSize(new Dimension(90,0));
+                            stepUp.setBorderPainted(false);
+                            stepUp.setFocusPainted(false);
+                            stepUp.setHorizontalTextPosition(JButton.CENTER);
+                            stepUp.setVerticalTextPosition(JButton.BOTTOM);
+                            stepUp.setContentAreaFilled(false);
+                            stepUp.setOpaque(true);
+                            stepUp.setForeground(new Color(63,63,63));
+							jdpExec.add(stepUp);
 						}
 					});
 					break;
@@ -798,12 +950,6 @@ public class Janela extends JFrame{
 								}
 								
 							);
-							
-							
-							
-							
-							
-							System.out.println(ArraysLists.itensMenuLista.get(6).getNomeMenu());
 						}
 					});
 					break;
@@ -813,6 +959,15 @@ public class Janela extends JFrame{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void Reiniciar(){
+		ArraysLists.arrLabel.clear();
+		Registrador.LimparAtividade(Janela.dtm);
+		Janela.dtmExec.setRowCount(0);
+		Memoria.LimparMemoria(Janela.dtmMem);
+		Janela.dtmMem.fireTableDataChanged();
+		Janela.painelLinguagemMaquina.setText("");
 	}
 	
 	public void Splash(){
@@ -865,7 +1020,8 @@ public class Janela extends JFrame{
 		splJanela.setVisible(false);
 		janelaInicial.setVisible(true);
 	}
-    private static class SoftJButton extends JButton {
+
+	static class SoftJButton extends JButton {
 
         private static final JButton lafDeterminer = new JButton();
         private static final long serialVersionUID = 1L;
@@ -910,26 +1066,23 @@ public class Janela extends JFrame{
             rectangularLAF = lafDeterminer.isOpaque();
         }
     }
-	public int getLargura() {
+
+
+    public int getLargura() {
 		return largura;
 	}
-
 	public void setLargura(int largura) {
 		this.largura = largura;
 	}
-
 	public String getTitulo() {
 		return titulo;
 	}
-
 	public void setTitulo(String titulo) {
 		this.titulo = titulo;
 	}
-
 	public int getAltura() {
 		return altura;
 	}
-
 	public void setAltura(int altura) {
 		this.altura = altura;
 	}

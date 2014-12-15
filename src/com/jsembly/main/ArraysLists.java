@@ -3,6 +3,7 @@ package com.jsembly.main;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
+import com.jsembly.mips.Instrucao;
 import com.jsembly.mips.Operador;
 import com.jsembly.mips.Registrador;
 
@@ -13,7 +14,9 @@ public class ArraysLists {
     public static ArrayList<Registrador> regEncontrados = new ArrayList<Registrador>();
     public static ArrayList<Registrador> regAtivos = new ArrayList<Registrador>();
     public static ArrayList<String> arrLabel  = new ArrayList<String>();
+    public static ArrayList<Instrucao> instrucoes = new ArrayList<Instrucao>();
     public static ArrayList<String> labelAddress  = new ArrayList<String>();
     
     public static ArrayList<ItensMenu> itensMenuLista = new ArrayList<ItensMenu>(EnumSet.allOf(ItensMenu.class));
+    public static ArrayList<Janela.SoftJButton> botoesMenu = new ArrayList<Janela.SoftJButton>();
 }

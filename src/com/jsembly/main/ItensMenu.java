@@ -6,7 +6,7 @@ public enum ItensMenu{
 	Abrir(1,"Abrir","img/file18_hover.png","img/file18.png"),
 	Salvar(2,"Salvar","img/save27_hover.png","img/save27.png"),
 	Montar(3,"Montar","img/data45_hover.png","img/data45.png"),
-	CompilarStep(4,"Step by Step","img/media23_hover.png","img/media23.png"),
+	Executar(4,"Executar","img/media23_hover.png","img/media23.png"),
 	Configuracoes(5,"Configurações","img/screwdriver3_hover.png","img/screwdriver3.png"),
 	Valores(6,"Valor Registrador","img/losing_hover.png","img/losing.png"),
 	Dicas(7,"Dicas","img/lightbulb-1_hover.png","img/lightbulb-1.png");

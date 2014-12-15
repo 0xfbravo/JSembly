@@ -13,10 +13,11 @@ import com.jsembly.funcoes.ConversaoBase;
 import com.jsembly.main.ArraysLists;
 import com.jsembly.main.Janela;
 import com.jsembly.main.Memoria;
+import com.jsembly.mips.Instrucao;
 import com.jsembly.mips.Registrador;
 import com.jsembly.mips.TipoInstrucao;
 
-public class Montador {
+public class Montar {
 	public static String lblAddress = new String();
 	public static String novoEndLbl = new String();
 	public static String valorReg = new String();
@@ -44,7 +45,7 @@ public class Montador {
 	public static Pattern enderecoTipoR = Pattern.compile("[$]\\w+", Pattern.CASE_INSENSITIVE);
 	public static Pattern label = Pattern.compile("\\b\\w{1,9999}[:]", Pattern.CASE_INSENSITIVE);
 	
-	public Montador(){
+	public Montar(){
 		ArraysLists.arrLabel.clear();
 		Registrador.LimparAtividade(Janela.dtm);
 		Janela.dtmExec.setRowCount(0);
@@ -290,7 +291,9 @@ public class Montador {
 		    		  		
 		    		  	// -- TIPO R
 		    		  	case 2:
-		    		  		int p;
+		    		  		//Instrucao tipoR = new Instrucao(ArraysLists.operadores.get(i),ArraysLists.regEncontrados.get(0),ArraysLists.regEncontrados.get(1),ArraysLists.regEncontrados.get(2));
+		    		  		//System.out.println(tipoR);
+		    		  		/*int p;
     		  				String q = null;
     		  				Matcher matcherR = enderecoTipoI.matcher(linha);
     		  				if(matcherR.find()) { 
@@ -319,7 +322,7 @@ public class Montador {
 			    		  				"0x"+ConversaoBase.converteBinarioParaHexadecimal(lm),
 			    		  				ArraysLists.operadores.get(i)+" $"+ArraysLists.regEncontrados.get(0).getId()+",$"+ArraysLists.regEncontrados.get(1).getId()+",$"+ArraysLists.regEncontrados.get(2).getId(),
 			    		  				linhaAtual+": "+ArraysLists.operadores.get(i)+" "+ArraysLists.regEncontrados.get(0).toString()+","+ArraysLists.regEncontrados.get(1).toString()+","+ArraysLists.regEncontrados.get(2).toString()});
-    		  				}
+    		  				}*/
 
 		    		  		break;
 		    		  		

@@ -91,11 +91,8 @@ public enum Registrador {
 	
 	public static void LimparAtividade(DefaultTableModel dtm){
   		for(int d = 0; d < dtm.getRowCount(); d++){
-  			//System.out.println("Valor da Linha:"+dtm.getValueAt(d, 0));
   			for(int r = 0; r < ArraysLists.registradores.size(); r ++){
-  				//System.out.println("Registrador:"+ ArraysLists.registradores.get(r).toString());
   	  			if(dtm.getValueAt(d, 0).equals(ArraysLists.registradores.get(r).toString())){
-  	  				//System.out.println("É Igual!");
   	  				dtm.setValueAt("Inativo", d, 4);
   	  			}
   			}
